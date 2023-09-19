@@ -1,0 +1,187 @@
+#!/bin/bash
+# Backstage Install
+set -x >/tmp/backstage_install.log 2>&1
+
+
+# Set domain search up correctly
+res_if=$(resolvectl domain | grep ${domain} | sed "s/.*(//;s/).*//")
+resolvectl domain $res_if ${project}.${domain}
+
+# # Lets speed things up - use the proxy
+# echo 'Acquire::http::Proxy "http://192.168.1.122:8000";' >> /etc/apt/apt.conf.d/proxy.conf
+# echo 'Acquire::https::Proxy "http://192.168.1.122:8000";' >> /etc/apt/apt.conf.d/proxy.conf
+
+BACKSTAGE_USER="backstage"
+BACKSTAGE_HOME="/home/$BACKSTAGE_USER"
+APPDIR="backstage-app"
+CONFIG_FILE1="~backstage/$APPDIR/app-config.yaml"
+CONFIG_FILE2="~backstage/$APPDIR/app-config.local.yaml"
+PG_SECRET="secret"
+
+# Update your local package index, install java, then finally install Jenkins:
+sudo apt update
+sudo apt install make build-essential curl wget git postgresql -y
+
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD '$PG_SECRET';"
+ 
+
+# needs to be done as ubuntu or backstage user
+useradd $BACKSTAGE_USER -m -s /bin/bash
+
+snap install docker
+snap install yq
+
+groupadd docker
+usermod -aG docker $BACKSTAGE_USER
+
+# Use metadata endpoint to get IP to avoid templatefile limitations and/or race conditions in tf
+MY_IP=$(curl 169.254.169.254/1.0/meta-data/local-ipv4) || "127.0.0.1"
+
+su - $BACKSTAGE_USER -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash'
+su - $BACKSTAGE_USER -c 'export NVM_DIR="$([ -z "$${XDG_CONFIG_HOME-}" ] && printf %s "$${HOME}/.nvm" || printf %s "$${XDG_CONFIG_HOME}/nvm")"'
+
+
+cat << EOF > /tmp/backstage_install.sh
+#!/usr/bin/env bash
+
+[[ -s $BACKSTAGE_HOME/.nvm/nvm.sh ]] && . $BACKSTAGE_HOME/.nvm/nvm.sh 
+
+echo "Installing Node..."
+nvm install --lts
+
+echo "Installing Yarn..."
+npm install --global yarn
+
+echo "Fetching backstage..."
+echo $APPDIR | npx @backstage/create-app@latest
+
+echo "Add plugins and start..."
+cd $APPDIR
+yarn install
+yarn add --cwd packages/backend pg
+yarn add --cwd packages/app @backstage/plugin-jenkins
+yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd
+
+yq -i ' .app.baseUrl = "http://$MY_IP:3000" ' $CONFIG_FILE1
+yq -i ' .backend.baseUrl = "http://${FLOAT_IP}:7007"' $CONFIG_FILE1
+yq -i ' .backend.listen.host = "0.0.0.0" ' $CONFIG_FILE1
+yq -i ' .backend.cors.origin = "http://${FLOAT_IP}:3000"' $CONFIG_FILE1
+yq -i ' .backend.database.client = "pg" ' $CONFIG_FILE1
+yq -i ' del(.backend.database.connection)' $CONFIG_FILE1
+yq -i ' .backend.database.connection += {"host": "127.0.0.1"} ' $CONFIG_FILE1
+yq -i ' .backend.database.connection += {"port": "5432"} ' $CONFIG_FILE1
+yq -i ' .backend.database.connection += {"user": "postgres"} ' $CONFIG_FILE1
+yq -i ' .backend.database.connection += {"password": "$PG_SECRET"} ' $CONFIG_FILE1
+yq -i ' .organization.name = "FloydLabs" ' $CONFIG_FILE1
+chown backstage:backstage $CONFIG_FILE1
+chmod 640 $CONFIG_FILE1
+
+yq -i ' .integrations.github += [{"host": "github.com", "token": "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"}]' $CONFIG_FILE2
+chown backstage:backstage $CONFIG_FILE2
+chmod 640 $CONFIG_FILE2
+
+yarn dev &
+EOF
+
+chown $BACKSTAGE_USER:$BACKSTAGE_USER /tmp/backstage_install.sh
+chmod 700 /tmp/backstage_install.sh
+
+su - $BACKSTAGE_USER -c "/tmp/backstage_install.sh"
+
+#   116  yarn add --cwd packages/app @backstage/plugin-jenkins
+#   https://github.com/backstage/backstage/tree/master/plugins/jenkins-backend
+
+# !!!! This documentation is shit and fragmented !!!!
+
+# $ grep -A3 -B3 -i jenkins packages/app/src/components/catalog/EntityPage.tsx
+# import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
+# import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
+
+# import { EntityJenkinsContent } from '@backstage/plugin-jenkins';
+
+# const techdocsContent = (
+#   <EntityTechdocsContent>
+# --
+#       {cicdContent}
+#     </EntityLayout.Route>
+
+#     <EntityLayout.Route path="/jenkins" title="Jenkins">
+#       <EntityJenkinsContent />
+#     </EntityLayout.Route>
+
+#     <EntityLayout.Route path="/api" title="API">
+
+
+
+# $ grep -A3 -B3 -i jenkins app-config.yaml
+
+# #   '/test':
+# #     target: 'https://example.com'
+# #     changeOrigin: true
+#   '/jenkins/api':
+#     target: 'http://192.168.99.167:8080'
+#     changeOrigin: true
+#     headers:
+#       Authorization: Basic ${JENKINS_BASIC_AUTH_HEADER}
+
+# # Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# # Note: After experimenting with basic setup, use CI/CD to generate docs
+# --
+# #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
+# #   rules:
+# #     - allow: [User, Group]
+# jenkins:
+#   baseUrl: http://192.168.99.167:8080
+#   username: backstage-bot
+#   apiKey: 11ec030e57ff2a13767e58e5e149b5cba9
+
+
+
+# $ grep -A3 -B3 -i jenkins packages/backend/src/index.ts
+# import { TaskScheduler } from '@backstage/backend-tasks';
+# import { Config } from '@backstage/config';
+# import app from './plugins/app';
+# import jenkins from './plugins/jenkins';
+# import auth from './plugins/auth';
+# import catalog from './plugins/catalog';
+# import scaffolder from './plugins/scaffolder';
+# --
+#   const catalogEnv = useHotMemoize(module, () => createEnv('catalog'));
+#   const scaffolderEnv = useHotMemoize(module, () => createEnv('scaffolder'));
+#   const authEnv = useHotMemoize(module, () => createEnv('auth'));
+#   const jenkinsEnv = useHotMemoize(module, () => createEnv('jenkins'));
+#   const proxyEnv = useHotMemoize(module, () => createEnv('proxy'));
+#   const techdocsEnv = useHotMemoize(module, () => createEnv('techdocs'));
+#   const searchEnv = useHotMemoize(module, () => createEnv('search'));
+# --
+#   apiRouter.use('/catalog', await catalog(catalogEnv));
+#   apiRouter.use('/scaffolder', await scaffolder(scaffolderEnv));
+#   apiRouter.use('/auth', await auth(authEnv));
+#   apiRouter.use('/jenkins', await jenkins(jenkinsEnv));
+#   apiRouter.use('/techdocs', await techdocs(techdocsEnv));
+#   apiRouter.use('/proxy', await proxy(proxyEnv));
+#   apiRouter.use('/search', await search(searchEnv));
+
+
+# $ grep -A3 -B3 -i jenkins packages/backend/src/plugins/jenkins.ts
+# import {
+#   createRouter,
+#   DefaultJenkinsInfoProvider,
+# } from '@backstage/plugin-jenkins-backend';
+# import { CatalogClient } from '@backstage/catalog-client';
+# import { Router } from 'express';
+# import { PluginEnvironment } from '../types';
+# --
+
+#   return await createRouter({
+#     logger: env.logger,
+#     jenkinsInfoProvider: DefaultJenkinsInfoProvider.fromConfig({
+#       config: env.config,
+#       catalog,
+#     }),
+
+
+#   117  yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd
+#   https://github.com/harness/backstage-plugins/tree/main/plugins/harness-ci-cd
+#   118  yarn install
+
