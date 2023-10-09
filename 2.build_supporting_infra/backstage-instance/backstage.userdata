@@ -122,7 +122,7 @@ su - $BACKSTAGE_USER -c "/tmp/backstage_install.sh"
 #     target: 'http://192.168.99.167:8080'
 #     changeOrigin: true
 #     headers:
-#       Authorization: Basic ${JENKINS_BASIC_AUTH_HEADER}
+#       Authorization: Basic $${JENKINS_BASIC_AUTH_HEADER}
 
 # # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # # Note: After experimenting with basic setup, use CI/CD to generate docs

@@ -1,9 +1,0 @@
-# openrc for demo
-export OS_AUTH_URL=http://10.20.21.10:80/openstack-keystone
-export OS_USERNAME=demo
-export OS_PASSWORD=gJpSDdXV6N30
-export OS_USER_DOMAIN_NAME=users
-export OS_PROJECT_DOMAIN_NAME=users
-export OS_PROJECT_NAME=demo
-export OS_AUTH_VERSION=3
-export OS_IDENTITY_API_VERSION=3
