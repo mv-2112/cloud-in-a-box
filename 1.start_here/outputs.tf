@@ -9,7 +9,7 @@ output "builder_pass" {
 }
 
 resource "local_sensitive_file" "output-build-rcfile" {
-  filename = "./${var.build_project}_openrc"
+  filename = "../auth/${var.build_project}_openrc"
   content  =  <<-EOF
 # Automagically generated rc file for ${var.build_project}
 export OS_USERNAME=${openstack_identity_user_v3.domain_user_1.name}

@@ -1,7 +1,7 @@
 # Set this to form the prefix for the tenant/domain
 variable "domain" {
   type = string
-  default = "local"
+  default = "example.com"
 }
 
 # Set this to form the prefix for the build project

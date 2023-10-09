@@ -10,3 +10,4 @@
 **/*.backup
 builder/resource-firewallsecuritygroups.tf
 app1/software/*
+auth/**

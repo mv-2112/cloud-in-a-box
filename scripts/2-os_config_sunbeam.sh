@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
-sunbeam configure --accept-defaults --openrc demo-openrc
-sunbeam openrc > admin_openrc
+AUTHDIR="../auth"
+
+if [ ! -d "$AUTHDIR" ]; then
+	mkdir $AUTHDIR
+fi
+
+sunbeam configure --accept-defaults --openrc $AUTHDIR/demo-openrc
+sunbeam openrc > $AUTHDIR/admin_openrc
 sunbeam dashboard-url
-source ./admin_openrc 
+source $AUTHDIR/admin_openrc 
 echo $OS_PASSWORD
 echo $OS_USER_DOMAIN_NAME
