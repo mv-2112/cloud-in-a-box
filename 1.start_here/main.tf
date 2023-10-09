@@ -3,6 +3,11 @@ resource "random_password" "password" {
   special = false
 }
 
+data "openstack_identity_endpoint_v3" "keystone_endpoint_1" {
+  service_name = "keystone"
+  interface = "internal"
+}
+
 data "openstack_networking_network_v2" "external_network" {
   name = "external-network"
 }
