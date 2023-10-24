@@ -16,17 +16,17 @@ usage() {
   echo "Usage: $0 [ -z <disk string> ] [ -i ]" 1>&2 
 }
 
-exit_abnormal() {                         
+exit_abnormal() {
   usage
   exit 1
 }
 
-while getopts ":z:ih" options; do           
-  case "${options}" in                    
+while getopts ":z:ih" options; do
+  case "${options}" in
     h)
       usage
       ;;
-    z)       
+    z)
       ZAP_DISKS=${OPTARG}
       ZAP_DISKS=$(echo $ZAP_DISKS | tr ',' ' ')
       for each_disk in $(echo $ZAP_DISKS)
@@ -38,12 +38,12 @@ while getopts ":z:ih" options; do
     i)
       echo ${AVAILABLE_DISKS}
       ;;
-    :)                                    
+    :)
       echo "Error: -${OPTARG} requires an argument."
-      exit_abnormal                       
+      exit_abnormal
       ;;
-    *)                                    
-      exit_abnormal                       
+    *)
+      exit_abnormal
       ;;
   esac
 done
