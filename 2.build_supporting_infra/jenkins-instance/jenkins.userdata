@@ -69,6 +69,7 @@ antisamy-markup-formatter:latest
 build-timeout:latest
 cloudbees-folder:latest
 configuration-as-code:latest
+configuration-as-code-groovy:latest
 credentials-binding:latest
 email-ext:latest
 git:latest
@@ -77,10 +78,12 @@ gradle:latest
 ldap:latest
 mailer:latest
 matrix-auth:latest
+openstack-cloud:latest
 pam-auth:latest
 pipeline-github-lib:latest
 pipeline-stage-view:latest
 ssh-slaves:latest
+terraform:latest
 timestamper:latest
 workflow-aggregator:latest
 ws-cleanup:latest
@@ -128,8 +131,29 @@ jenkins:
     local:
       allowsSignup: false
       users:
-        - id: "admin"
-          password: "${JENKINS_PASSWORD}"
+      - id: "admin"
+        password: "${JENKINS_PASSWORD}"
+        name: "admin"
+        properties:
+        - "apiToken"
+        - "myView"
+        - "timezone"
+        - "experimentalFlags"
+        - "mailer"
+        - preferredProvider:
+            providerId: "default"
+      - id: "builder"
+        password: "${BUILDER_PASSWORD}"
+        name: "Builder"
+        properties:
+        - "apiToken"
+        - "myView"
+        - preferredProvider:
+            providerId: "default"
+        - "timezone"
+        - "experimentalFlags"
+        - mailer:
+            emailAddress: "builder@example.com"
   authorizationStrategy: loggedInUsersCanDoAnything
 unclassified:
   gitHubPluginConfig:
@@ -143,3 +167,25 @@ java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://0.0
 
 # Restart Jenkins 
 systemctl restart jenkins
+
+
+# Generate a token for Builder User
+cat << EOF > /tmp/generate_build_token.groovy
+import hudson.model.*
+import jenkins.model.*
+import jenkins.security.*
+import jenkins.security.apitoken.*
+
+// script parameters
+userName = "builder"
+tokenName = "backstage-token"
+
+user = User.get(userName, false)
+apiTokenProperty = user.getProperty(ApiTokenProperty.class)
+result = apiTokenProperty.tokenStore.generateNewToken(tokenName)
+user.save()
+println(result.plainValue)
+return result.plainValue
+EOF
+
+echo "BUILDER TOKEN: [$(java -jar jenkins-cli.jar -auth admin:${JENKINS_PASSWORD} -s http://0.0.0.0:8080/ -webSocket  groovy = < /tmp/generate_build_token.groovy)]"

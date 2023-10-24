@@ -1,0 +1,2 @@
+URL: http://10.20.20.119:8080
+Admin login details: admin/OGdZumZVksLQAfct

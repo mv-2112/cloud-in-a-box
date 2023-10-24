@@ -11,7 +11,7 @@ output "external_ip" {
 }
 
 
-output "backstage_login" {
+output "backstage_admin_login" {
   sensitive = true
   description = "The backstage password is:" 
   value = "admin/${random_password.backstage_password.result}"
