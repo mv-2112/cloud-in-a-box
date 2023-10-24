@@ -11,3 +11,4 @@
 builder/resource-firewallsecuritygroups.tf
 app1/software/*
 auth/**
+2.build_supporting_infra/scripts/cookies.txt
