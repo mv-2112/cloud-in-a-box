@@ -1,0 +1,22 @@
+#!/bin/sh
+# Websphere Liberty Install
+set -x >/tmp/wlp_install.log 2>&1
+
+WLP_download="https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/release/2022-01-03_1900/openliberty-webProfile9-22.0.0.1.zip"
+
+apt update
+apt install -y curl unzip xmlstarlet git openjdk-18-jdk-headless maven
+
+su - ubuntu -c "git clone https://github.com/openliberty/guide-getting-started.git"
+su - ubuntu -c "cd guide-getting-started/start && mvn liberty:run"
+
+
+
+# curl -O $WLP_download
+# unzip ${WLP_download##*/}
+
+# su - ubuntu -c "curl -O $WLP_download"
+# su - ubuntu -c "unzip ${WLP_download##*/}"
+# su - ubuntu -c "~/wlp/bin/server create application"
+# su - ubuntu -c "xmlstarlet ed -L -a "server/httpEndpoint" -t attr -n host -v '*' ~/wlp/usr/servers/application/server.xml"
+# su - ubuntu -c "~/wlp/bin/server start application"
