@@ -11,4 +11,4 @@
 app1/software/*
 auth/**
 **/cookies.txt
-2.build_supporting_infra/appinfo/**
+2.build_supporting_infra/appinfo/*
