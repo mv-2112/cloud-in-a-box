@@ -1,3 +1,0 @@
-URL: http://10.20.20.137:8080
-Admin login details: admin/9eqf8aWM4tPmSyic
-Builder login details: builder/sXYbzPvnW6U5nG22
