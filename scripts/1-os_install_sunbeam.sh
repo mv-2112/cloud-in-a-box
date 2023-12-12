@@ -3,7 +3,8 @@
 CEPH_DISKS=$(./misc/ceph_disk.sh -i)
 sunbeam generate-preseed | yq ' .microceph_config.*.osd_devices += "'$CEPH_DISKS'"' > /tmp/preseed.yaml
 
-sunbeam cluster bootstrap --accept-defaults
+# Lets go all in now on the single bootstrap now its faster
+# sunbeam cluster bootstrap --accept-defaults
 
 # We removed --role control from next line as now seems to be inferred.
 # sunbeam cluster bootstrap --preseed /tmp/preseed.yaml --role storage --role compute 

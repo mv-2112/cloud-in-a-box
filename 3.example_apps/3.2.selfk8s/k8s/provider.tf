@@ -6,10 +6,3 @@ terraform {
     }
   }
 }
-
-# Configure the OpenStack Provider
-provider "openstack" {
-  # user_name   = "builder-admin"
-  tenant_name = "app0"
-  use_octavia   = true
-}

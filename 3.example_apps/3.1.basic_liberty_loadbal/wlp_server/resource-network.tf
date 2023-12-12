@@ -35,10 +35,30 @@ resource "openstack_dns_recordset_v2" "wlp-dns-2" {
 }
 
 
+# Amphora LB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# OVN LB
+
 # Create loadbalancer
 resource "openstack_lb_loadbalancer_v2" "wlp-lb" {
-  name          = "${var.project}.${var.domain}-lb"
-  vip_subnet_id = data.openstack_networking_subnet_v2.wlp_network.id
+  name                  = "${var.project}.${var.domain}-lb"
+  vip_subnet_id         = data.openstack_networking_subnet_v2.wlp_network.id
+  loadbalancer_provider = "ovn"
 }
 
 
@@ -48,36 +68,31 @@ resource "openstack_lb_listener_v2" "wlp-http-lb-listener" {
   protocol        = "TCP"
   protocol_port   = 80
   loadbalancer_id = openstack_lb_loadbalancer_v2.wlp-lb.id
-  #depends_on      = [openstack_lb_loadbalancer_v2.http]
-
-  # insert_headers = {
-  #   X-Forwarded-For = "true"
-  #   X-Forwarded-Proto = "true"
-  # }
 }
 
 
-# # Create listener
-# resource "openstack_lb_listener_v2" "wlp-https-lb-listener" {
-#   name            = "${var.project}.${var.domain}-https-lb-listener"
-#   protocol        = "TCP"
-#   protocol_port   = 443
-#   loadbalancer_id = openstack_lb_loadbalancer_v2.wlp-lb.id
-#   #depends_on      = [openstack_lb_loadbalancer_v2.http]
-
-#   insert_headers = {
-#     X-Forwarded-For = "true"
-#     X-Forwarded-Proto = "true"
-#   }
-# }
+# Create listener
+resource "openstack_lb_listener_v2" "wlp-https-lb-listener" {
+  name            = "${var.project}.${var.domain}-https-lb-listener"
+  protocol        = "TCP"
+  protocol_port   = 443
+  loadbalancer_id = openstack_lb_loadbalancer_v2.wlp-lb.id
+}
 
 # Create pool
 resource "openstack_lb_pool_v2" "wlp-lb-pool" {
-  name        = "${var.project}.${var.domain}-lb-pool"
+  name = "${var.project}.${var.domain}-lb-pool"
+
+  # Amphora
+  #protocol    = "TCP"
+  #lb_method   = "ROUND_ROBIN"
+  #listener_id = openstack_lb_listener_v2.wlp-http-lb-listener.id
+
+  # OVN
   protocol    = "TCP"
-  lb_method   = "ROUND_ROBIN"
+  lb_method   = "SOURCE_IP_PORT"
   listener_id = openstack_lb_listener_v2.wlp-http-lb-listener.id
-  #depends_on  = [openstack_lb_listener_v2.http]
+
 }
 
 
@@ -93,17 +108,32 @@ resource "openstack_lb_member_v2" "wlp-lb-pool-members" {
 }
 
 
+# OVN monitor
 resource "openstack_lb_monitor_v2" "wlp-lb-monitor" {
-  name           = "${var.project}.${var.domain}-lb-monitor"
-  pool_id        = openstack_lb_pool_v2.wlp-lb-pool.id
-  type           = "HTTP"
-  http_method    = "GET"
-  url_path       = "/"
-  delay          = 20
-  timeout        = 10
-  max_retries    = 5
-  expected_codes = "200"
+  name             = "${var.project}.${var.domain}-lb-monitor"
+  pool_id          = openstack_lb_pool_v2.wlp-lb-pool.id
+  type             = "TCP"
+  delay            = 5
+  timeout          = 5
+  max_retries      = 3
+  max_retries_down = 3
 }
+
+# Amphora Monitor
+# resource "openstack_lb_monitor_v2" "wlp-lb-monitor" {
+#   name           = "${var.project}.${var.domain}-lb-monitor"
+#   pool_id        = openstack_lb_pool_v2.wlp-lb-pool.id
+#   type           = "HTTP"
+#   http_method    = "GET"
+#   url_path       = "/"
+#   delay          = 20
+#   timeout        = 10
+#   max_retries    = 5
+#   expected_codes = "200"
+# }
+
+
+
 
 
 # Get floating IP

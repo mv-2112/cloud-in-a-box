@@ -11,3 +11,5 @@ rm -rf ~/snap/openstack-hypervisor
 rm -rf ~/snap/microstack/
 rm -rf ~/snap/juju/
 rm -rf ~/snap/microk8s/
+
+sudo ./misc/ceph_disk.sh -z $(./misc/ceph_disk.sh -i)

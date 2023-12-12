@@ -5,7 +5,6 @@ data "openstack_networking_network_v2" "external_network" {
 }
 
 
-
 resource "openstack_compute_keypair_v2" "keypair" {
   name = "${var.app_project}-keypair"
 }
@@ -35,9 +34,9 @@ module "wlp_server" {
 
   project          = var.app_project
   image            = var.default_image
-  flavour          = "g1.medium"
-  number_to_build  = 4
-  expose           = false
+  flavour          = "m1.medium"
+  number_to_build  = 2
+  expose           = true
   domain           = var.domain
   external_network = var.external_network
 }
