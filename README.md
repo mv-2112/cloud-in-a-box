@@ -21,8 +21,8 @@ During the install, SSD 2,3, and 4 will be used for Ceph.
 
 Navigate to the scripts directory and run each of the install scripts in turn.
 
-./0-os_install_prereqs.sh
-./1-os_install_sunbeam.sh (accept the defaults when prompted)
+- ./0-os_install_prereqs.sh
+- ./1-os_install_sunbeam.sh (accept the defaults when prompted)
 
 Example output:
 
