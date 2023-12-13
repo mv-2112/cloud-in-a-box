@@ -11,14 +11,15 @@ sunbeam enable orchestration
 
 # Aodh/Gnocchi/Ceilometer
 sunbeam enable telemetry
-juju integrate gnocchi microceph
+# juju integrate gnocchi microceph
 
 # Vault
-sunbeam enable vault
+# sunbeam enable vault
 
 # Octavia
 sunbeam enable loadbalancer
 
 # Magnum
 sunbeam enable caas
-curl https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/38.20230806.3.0/x86_64/fedora-coreos-38.20230806.3.0-openstack.x86_64.qcow2.xz
+sunbeam configure caas
+# curl https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/38.20230806.3.0/x86_64/fedora-coreos-38.20230806.3.0-openstack.x86_64.qcow2.xz
