@@ -21,7 +21,9 @@ exit_abnormal() {
   exit 1
 }
 
-while getopts ":z:ih" options; do
+msg_out=$AVAILABLE_DISKS
+
+while getopts ":zyih" options; do
   case "${options}" in
     h)
       usage
@@ -34,9 +36,13 @@ while getopts ":z:ih" options; do
         echo "Zapping $each_disk"
         wipefs -af $each_disk
       done
+      msg_out="Cleared disks $(ZAP_DISKS)."
+      ;;
+    y)
+	    msg_out=$(echo '"'$AVAILABLE_DISKS'"' | sed 's/,/","/g')
       ;;
     i)
-      echo ${AVAILABLE_DISKS}
+      msg_out=${AVAILABLE_DISKS}
       ;;
     :)
       echo "Error: -${OPTARG} requires an argument."
@@ -47,3 +53,5 @@ while getopts ":z:ih" options; do
       ;;
   esac
 done
+
+echo $msg_out
