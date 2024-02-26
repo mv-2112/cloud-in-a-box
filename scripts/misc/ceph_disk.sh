@@ -23,7 +23,7 @@ exit_abnormal() {
 
 msg_out=$AVAILABLE_DISKS
 
-while getopts ":zyih" options; do
+while getopts ":z:yih" options; do
   case "${options}" in
     h)
       usage
@@ -36,7 +36,7 @@ while getopts ":zyih" options; do
         echo "Zapping $each_disk"
         wipefs -af $each_disk
       done
-      msg_out="Cleared disks $(ZAP_DISKS)."
+      msg_out="Cleared disks $ZAP_DISKS."
       ;;
     y)
 	    msg_out=$(echo '"'$AVAILABLE_DISKS'"' | sed 's/,/","/g')

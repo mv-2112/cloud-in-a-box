@@ -92,10 +92,10 @@ EOF
 
 # Install some plugins from jenkins-cli
 sleep 60
-curl -O http://0.0.0.0:8080/jnlpJars/jenkins-cli.jar
+curl -O http://${JENKINS_ADDRESS}:8080/jnlpJars/jenkins-cli.jar
 for each in $(cat /tmp/plugins.txt)
 do
-  java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://0.0.0.0:8080/ -webSocket install-plugin $each
+  java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://${JENKINS_ADDRESS}:8080/ -webSocket install-plugin $each
 done
 
 
@@ -107,7 +107,7 @@ systemctl restart jenkins
 while true
 do
   echo "Testing if Jenkins is running yet..."
-  RESULT=$(java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://0.0.0.0:8080/ -webSocket version > /dev/null 2>&1; echo $?)
+  RESULT=$(java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://${JENKINS_ADDRESS}:8080/ -webSocket version > /dev/null 2>&1; echo $?)
   if [[ $RESULT == "0" ]]; then
     echo "Jenkins is up and running"
     break
@@ -160,10 +160,10 @@ unclassified:
     hookUrl: "http://${JENKINS_ADDRESS}:8080/github-webhook/"
   location:
     adminAddress: "address not configured yet <nobody@nowhere>"
-    url: "http://${JENKINS_ADDRESS}:8080/"
+    url: "http://${FLOAT_IP}:8080/"
 EOF
 
-java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://0.0.0.0:8080/ -webSocket  apply-configuration < /tmp/basic.yaml
+java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://${JENKINS_ADDRESS}:8080/ -webSocket  apply-configuration < /tmp/basic.yaml
 
 # Restart Jenkins 
 systemctl restart jenkins
@@ -188,4 +188,4 @@ println(result.plainValue)
 return result.plainValue
 EOF
 
-echo "BUILDER TOKEN: [$(java -jar jenkins-cli.jar -auth admin:${JENKINS_PASSWORD} -s http://0.0.0.0:8080/ -webSocket  groovy = < /tmp/generate_build_token.groovy)]"
+echo "BUILDER TOKEN: [$(java -jar jenkins-cli.jar -auth admin:${JENKINS_PASSWORD} -s http://${JENKINS_ADDRESS}:8080/ -webSocket  groovy = < /tmp/generate_build_token.groovy)]"
