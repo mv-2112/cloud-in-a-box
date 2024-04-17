@@ -6,5 +6,6 @@ variable "domain" {
   type    = string
   default = "example.com"
 }
-variable "expose" { default = false }
+variable "expose_node" { default = false }
+variable "expose_lb" { default = false }
 variable "external_network" { default = "external-network" }

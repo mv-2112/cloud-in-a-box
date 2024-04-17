@@ -6,5 +6,9 @@ required_version = ">= 0.14.0"
       source  = "terraform-provider-openstack/openstack"
       version = "~> 1.51.1"
     }
+    # github = {
+    #   source = "integrations/github"
+    #   version = "6.0.0"
+    # }
   }
 }

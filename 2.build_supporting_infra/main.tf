@@ -30,3 +30,9 @@ module "backstage_server" {
 resource "openstack_compute_keypair_v2" "keypair" {
   name = "${var.build_project}-keypair"
 }
+
+
+# resource "github_repository" "example" {
+#   name        = "guff"
+#   description = "My awesome codebase"
+# }

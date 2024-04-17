@@ -66,8 +66,27 @@ function select_option {
     return $selected
 }
 
+function get_info {
+  declare -A snap_info 
+  snap list openstack > /tmp/$$
+
+  col_names=$(head -1 /tmp/$$)
+  col_data=( $(tail -1 /tmp/$$) )
+
+  n=0
+  for each_key in $( echo $col_names )
+  do
+    snap_info[$each_key]=${col_data[$n]}
+    echo "$each_key: ${snap_info[$each_key]}"
+    n=$((n+1))
+  done
+
+  rm /tmp/$$
+}
+
 
 sudo snap install yq
+sudo snap install gh
 
 echo
 echo "Select one option using up/down keys and enter to confirm:"

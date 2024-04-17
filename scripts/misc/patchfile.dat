@@ -1,0 +1,2 @@
+{"spec":{"template":{"spec":{"$setElementOrder/containers":[{"name":"charm"},{"name":"mysql"}],"containers":[{"livenessProbe":{"initialDelaySeconds":300,"timeoutSeconds":2},"name":"charm","readinessProbe":{"initialDelaySeconds":300,"timeoutSeconds":2},"startupProbe":{"initialDelaySeconds":300,"timeoutSeconds":2}},{"livenessProbe":{"initialDelaySeconds":300,"timeoutSeconds":2},"name":"mysql","readinessProbe":{"initialDelaySeconds":300,"timeoutSeconds":2}}]}}}}
+

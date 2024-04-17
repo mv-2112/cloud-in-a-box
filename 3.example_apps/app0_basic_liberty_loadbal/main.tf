@@ -36,7 +36,8 @@ module "wlp_server" {
   image            = var.default_image
   flavour          = "m1.medium"
   number_to_build  = 2
-  expose           = true
+  expose_node      = false
+  expose_lb        = true
   domain           = var.domain
   external_network = var.external_network
 }
