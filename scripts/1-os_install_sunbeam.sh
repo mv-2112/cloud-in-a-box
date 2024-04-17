@@ -70,7 +70,7 @@ case "$1" in
     ;;
 -t|--type)
     shift
-    export single="$1"
+    export type="$1"
     ;;
 --)
     shift
@@ -79,7 +79,7 @@ esac
 shift
 done
 
-if [[ $type != "s" ]]; then
+if [[ $type != "s" and $type != "single" ]]; then
 	echo "Configuring Multinode"
 	echo "Not implemented yet... exiting"
 	exit 1
@@ -94,10 +94,13 @@ if [[ $version == "default" ]]; then
 	version="2023.2/stable"
 else
 	#check format looks sensible
-	if [[ $version =~ ^(\d{4}\.\d{1}|[A-Z,a-z]*)\/[A-Z,a-z]*$ ]]; then
+  pattern='^([0-9]{4}\.[0-9]{1}|[A-Z,a-z]*)\/[A-Z,a-z]*$'
+	if [[ $version =~ $pattern ]]; then
 		echo "version [$version] looks sensible"
 	else
-		echo "version [$version] does not look like 2023.2/stable as an example"
+		echo "WARNING: version [$version] does not look like 2023.2/stable as an example (RETURN to continue, CTRL-C to quit)"
+    read
+    exit 1
 	fi
 fi
 

@@ -12,3 +12,6 @@ app1/software/*
 auth/**
 **/cookies.txt
 **/appinfo/**
+**/sunbeam-manifest.yaml
+**/sunbeam-preseed.yaml
+
