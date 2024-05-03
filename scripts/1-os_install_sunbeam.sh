@@ -79,7 +79,7 @@ esac
 shift
 done
 
-if [[ $type != "s" and $type != "single" ]]; then
+if [[ $type != "s" && $type != "single" ]]; then
 	echo "Configuring Multinode"
 	echo "Not implemented yet... exiting"
 	exit 1
@@ -109,15 +109,6 @@ CEPH_DISKS=$(./misc/ceph_disk.sh -i)
 
 
 
-
-# echo "Tuning mysql to aim to reduce OOMkiller impact..."
-# yq -i ".software.mysql-k8s.config.profile-limit-memory=4096 " ../sunbeam-manifest.yaml
-
-# Lets go all in now on the single bootstrap now its faster
-# sunbeam cluster bootstrap --accept-defaults
-
-# We removed --role control from next line as now seems to be inferred.
-# Post 385/386 we've moved to manifests
 if [[ ${snap_info["Rev"]} -le 335 ]]; then
   echo "Generating preseed file..."
   echo "Inserting disks for Ceph config..."
@@ -128,18 +119,24 @@ else
   sunbeam manifest generate -f ../sunbeam-manifest.yaml
   echo "Inserting disks for Ceph config..."
   yq -i ".deployment.microceph_config.*.osd_devices = [ "$(./misc/ceph_disk.sh -y)" ]" ../sunbeam-manifest.yaml
-  echo "Temporary fix for 456-481 releases..."
+  echo "Temporary fix for 456-484 releases..."
   yq -i ' .software.charms.sunbeam-machine.channel = "'$version'"' ../sunbeam-manifest.yaml
-  for each in placement glance cinder cinder-ceph horizon nova neutron keystone 
+  for each in placement glance cinder cinder-ceph horizon nova neutron keystone designate
   do
     yq -i ' .software.charms.'$each'-k8s.channel = "'$version'"' ../sunbeam-manifest.yaml
   done
+  yq -i ' .software.charms.ovn-central-k8s.channel = "23.09/stable"' ../sunbeam-manifest.yaml
+  yq -i ' .software.charms.ovn-relay-k8s.channel = "23.09/stable"' ../sunbeam-manifest.yaml
+  yq -i ' .software.charms.openstack-hypervisor.channel = "'$version'"' ../sunbeam-manifest.yaml
   sunbeam cluster bootstrap --manifest ../sunbeam-manifest.yaml $type
 fi
 
-# ./misc/ease_liveness_tests.sh
+
 
 
 juju switch openstack
-juju integrate admin/controller.microceph cinder-ceph
+result=$(juju status --format json | jq ' .offers."cinder-ceph" | ."active-connected-count" ')
+if [[ $result -ne 1 ]]; then
+  juju integrate admin/controller.microceph cinder-ceph
+fi
 echo "Watch juju status until connected"
