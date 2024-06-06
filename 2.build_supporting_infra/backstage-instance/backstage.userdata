@@ -4,8 +4,8 @@ set -x >/tmp/backstage_install.log 2>&1
 
 
 # Set domain search up correctly
-res_if=$(resolvectl domain | grep ${domain} | sed "s/.*(//;s/).*//")
-resolvectl domain $res_if ${project}.${domain}
+#res_if=$(resolvectl domain | grep ${domain} | sed "s/.*(//;s/).*//")
+#resolvectl domain $res_if ${project}.${domain}
 
 # # Lets speed things up - use the proxy
 # echo 'Acquire::http::Proxy "http://192.168.1.122:8000";' >> /etc/apt/apt.conf.d/proxy.conf
@@ -37,7 +37,7 @@ usermod -aG docker $BACKSTAGE_USER
 # Use metadata endpoint to get IP to avoid templatefile limitations and/or race conditions in tf
 MY_IP=$(curl 169.254.169.254/1.0/meta-data/local-ipv4) || "127.0.0.1"
 
-su - $BACKSTAGE_USER -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash'
+su - $BACKSTAGE_USER -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash'
 su - $BACKSTAGE_USER -c 'export NVM_DIR="$([ -z "$${XDG_CONFIG_HOME-}" ] && printf %s "$${HOME}/.nvm" || printf %s "$${XDG_CONFIG_HOME}/nvm")"'
 
 
@@ -59,13 +59,14 @@ echo "Add plugins and start..."
 cd $APPDIR
 yarn install
 yarn add --cwd packages/backend pg
-yarn add --cwd packages/app @backstage/plugin-jenkins
+# yarn add --cwd packages/app @backstage/plugin-jenkins
+yarn add --cwd packages/app @backstage-community/plugin-jenkins 
 yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd
 
 yq -i ' .app.baseUrl = "http://$MY_IP:3000" ' $CONFIG_FILE1
-yq -i ' .backend.baseUrl = "http://${FLOAT_IP}:7007"' $CONFIG_FILE1
+yq -i ' .backend.baseUrl = "http://$MY_IP:7007"' $CONFIG_FILE1
 yq -i ' .backend.listen.host = "0.0.0.0" ' $CONFIG_FILE1
-yq -i ' .backend.cors.origin = "http://${FLOAT_IP}:3000"' $CONFIG_FILE1
+yq -i ' .backend.cors.origin = "http://$MY_IP:3000"' $CONFIG_FILE1
 yq -i ' .backend.database.client = "pg" ' $CONFIG_FILE1
 yq -i ' del(.backend.database.connection)' $CONFIG_FILE1
 yq -i ' .backend.database.connection += {"host": "127.0.0.1"} ' $CONFIG_FILE1
@@ -73,16 +74,60 @@ yq -i ' .backend.database.connection += {"port": "5432"} ' $CONFIG_FILE1
 yq -i ' .backend.database.connection += {"user": "postgres"} ' $CONFIG_FILE1
 yq -i ' .backend.database.connection += {"password": "$PG_SECRET"} ' $CONFIG_FILE1
 yq -i ' .organization.name = "FloydLabs" ' $CONFIG_FILE1
+yq -i ' .auth.environment = "development" ' $CONFIG_FILE1
+yq -i ' .auth.providers.github.development.signIn.resolvers += {"resolver": "emailMatchingUserEntityProfileEmail"} ' $CONFIG_FILE1
+yq -i ' .auth.providers.github.development.clientId = "${AUTH_GITHUB_CLIENT_ID}" ' $CONFIG_FILE1
+yq -i ' .auth.providers.github.development.clientSecret = "${AUTH_GITHUB_CLIENT_SECRET}" ' $CONFIG_FILE1
+yq -i ' del(.auth.providers.guest)' $CONFIG_FILE1
 chown backstage:backstage $CONFIG_FILE1
 chmod 640 $CONFIG_FILE1
 
-yq -i ' .integrations.github += [{"host": "github.com", "token": "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"}]' $CONFIG_FILE2
+yq -i ' .integrations.github += [{"host": "github.com", "token": "${GITHUB_PAT}"}]' $CONFIG_FILE2
 chown backstage:backstage $CONFIG_FILE2
 chmod 640 $CONFIG_FILE2
+
+patch ./packages/app/src/App.tsx /tmp/patch.txt
 
 yarn dev &
 EOF
 
+cat << EOF > /tmp/patch.txt
+--- packages/app/src/App.tsx	2024-06-04 17:20:32.838929666 +0000
++++ packages/app/src/App.tsx2	2024-06-04 17:36:38.181929822 +0000
+@@ -36,6 +36,8 @@
+ import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
+ import { RequirePermission } from '@backstage/plugin-permission-react';
+ import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
++import { githubAuthApiRef } from '@backstage/core-plugin-api';
+ 
+ const app = createApp({
+   apis,
+@@ -57,8 +59,19 @@
+     });
+   },
+   components: {
+-    SignInPage: props => <SignInPage {...props} auto providers={['guest']} />,
+-  },
++    SignInPage: props => (
++      <SignInPage
++        {...props}
++        auto
++        provider={{
++          id: 'github-auth-provider',
++          title: 'GitHub',
++          message: 'Sign in using GitHub',
++          apiRef: githubAuthApiRef,
++        }}
++      />
++    ),
++  }
+ });
+ 
+ const routes = (
+EOF
+
+chown $BACKSTAGE_USER:$BACKSTAGE_USER /tmp/patch.txt
+chmod 700 /tmp/patch.txt
 chown $BACKSTAGE_USER:$BACKSTAGE_USER /tmp/backstage_install.sh
 chmod 700 /tmp/backstage_install.sh
 
@@ -184,4 +229,301 @@ su - $BACKSTAGE_USER -c "/tmp/backstage_install.sh"
 #   117  yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd
 #   https://github.com/harness/backstage-plugins/tree/main/plugins/harness-ci-cd
 #   118  yarn install
+
+
+
+
+
+
+
+
+
+
+
+# Yet more badly documented inconsistent crap - github auth 
+
+
+# $ cat app-config.yaml 
+# app:
+#   title: Scaffolded Backstage App
+#   baseUrl: http://192.168.99.135:3000
+# organization:
+#   name: FloydLabs
+# backend:
+#   # Used for enabling authentication, secret is shared by all backend plugins
+#   # See https://backstage.io/docs/auth/service-to-service-auth for
+#   # information on the format
+#   # auth:
+#   #   keys:
+#   #     - secret: $ { BACKEND_SECRET } (spaces to avoid templating)
+#   baseUrl: http://10.20.20.174:7007
+#   listen:
+#     port: 7007
+#     # Uncomment the following host directive to bind to specific interfaces
+#     # host: 127.0.0.1
+
+#     host: 0.0.0.0
+#   csp:
+#     connect-src: ["'self'", 'http:', 'https:']
+#     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+#     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+#   cors:
+#     origin: http://10.20.20.174
+#     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+#     credentials: true
+#   # This is for local development only, it is not recommended to use this in production
+#   # The production database configuration is stored in app-config.production.yaml
+#   database:
+#     client: pg
+#     connection:
+#       host: 127.0.0.1
+#       port: "5432"
+#       user: postgres
+#       password: secret
+# integrations:
+#   github:
+#     - host: github.com
+#       # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+#       # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
+#       token: xxxxx
+#       ### Example for how to add your GitHub Enterprise instance using the API:
+#       # - host: ghe.example.net
+#       #   apiBaseUrl: https://ghe.example.net/api/v3
+#       #   token: $ { GHE_TOKEN } (spaces to avoid templating)
+# proxy:
+# ### Example for how to add a proxy endpoint for the frontend.
+# ### A typical reason to do this is to handle HTTPS and CORS for internal services.
+# # endpoints:
+# #   '/test':
+# #     target: 'https://example.com'
+# #     changeOrigin: true
+
+# # Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# # Note: After experimenting with basic setup, use CI/CD to generate docs
+# # and an external cloud storage when deploying TechDocs for production use-case.
+# # https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+# techdocs:
+#   builder: 'local' # Alternatives - 'external'
+#   generator:
+#     runIn: 'docker' # Alternatives - 'local'
+#   publisher:
+#     type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+# auth:
+#   # see https://backstage.io/docs/auth/ to learn about auth providers
+#   providers:
+#     github:
+#       development:
+#         signIn:
+#           resolvers:
+#             - resolver: usernameMatchingUserEntityName
+#         clientId: Ov23li5d95MaAG659iVR
+#         clientSecret: 4e5091195cb88cce71df85dcff011b3868851902
+#   environment: development
+#   experimentalExtraAllowedOrigins:
+#     - 10.20.20.174
+#     - 192.168.99.135
+# scaffolder:
+# # see https://backstage.io/docs/features/software-templates/configuration for software template options
+# catalog:
+#   import:
+#     entityFilename: catalog-info.yaml
+#     pullRequestBranchName: backstage-integration
+#   rules:
+#     - allow: [Component, System, API, Resource, Location]
+#   locations:
+#     # Local example data, file locations are relative to the backend process, typically `packages/backend`
+#     - type: file
+#       target: ../../examples/entities.yaml
+#     # Local example template
+#     - type: file
+#       target: ../../examples/template/template.yaml
+#       rules:
+#         - allow: [Template]
+#     # Local example organizational data
+#     - type: file
+#       target: ../../examples/org.yaml
+#       rules:
+#         - allow: [User, Group]
+# ## Uncomment these lines to add more example data
+# # - type: url
+# #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+# ## Uncomment these lines to add an example org
+# # - type: url
+# #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
+# #   rules:
+# #     - allow: [User, Group]
+
+
+
+
+
+# $ cat packages/app/src/App.tsx
+# import React from 'react';
+# import { Navigate, Route } from 'react-router-dom';
+# import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
+# import {
+#   CatalogEntityPage,
+#   CatalogIndexPage,
+#   catalogPlugin,
+# } from '@backstage/plugin-catalog';
+# import {
+#   CatalogImportPage,
+#   catalogImportPlugin,
+# } from '@backstage/plugin-catalog-import';
+# import { ScaffolderPage, scaffolderPlugin } from '@backstage/plugin-scaffolder';
+# import { orgPlugin } from '@backstage/plugin-org';
+# import { SearchPage } from '@backstage/plugin-search';
+# import {
+#   TechDocsIndexPage,
+#   techdocsPlugin,
+#   TechDocsReaderPage,
+# } from '@backstage/plugin-techdocs';
+# import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
+# import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
+# import { UserSettingsPage } from '@backstage/plugin-user-settings';
+# import { apis } from './apis';
+# import { entityPage } from './components/catalog/EntityPage';
+# import { searchPage } from './components/search/SearchPage';
+# import { Root } from './components/Root';
+
+# import {
+#   AlertDisplay,
+#   OAuthRequestDialog,
+#   SignInPage,
+# } from '@backstage/core-components';
+# import { createApp } from '@backstage/app-defaults';
+# import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
+# import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
+# import { RequirePermission } from '@backstage/plugin-permission-react';
+# import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
+# import { githubAuthApiRef } from '@backstage/core-plugin-api';
+
+# const githubAuthCfg = {
+#   id: 'github-auth-provider',
+#   title: 'GitHub',
+#   message: 'Sign in using GitHub',
+#   apiRef: githubAuthApiRef,
+# } 
+
+# const app = createApp({
+#   apis,
+#   bindRoutes({ bind }) {
+#     bind(catalogPlugin.externalRoutes, {
+#       createComponent: scaffolderPlugin.routes.root,
+#       viewTechDoc: techdocsPlugin.routes.docRoot,
+#       createFromTemplate: scaffolderPlugin.routes.selectedTemplate,
+#     });
+#     bind(apiDocsPlugin.externalRoutes, {
+#       registerApi: catalogImportPlugin.routes.importPage,
+#     });
+#     bind(scaffolderPlugin.externalRoutes, {
+#       registerComponent: catalogImportPlugin.routes.importPage,
+#       viewTechDoc: techdocsPlugin.routes.docRoot,
+#     });
+#     bind(orgPlugin.externalRoutes, {
+#       catalogIndex: catalogPlugin.routes.catalogIndex,
+#     });
+#   },
+#   components: {
+#     SignInPage: props => (
+#       <SignInPage
+#         {...props}
+#         auto
+#         providers={['guest', githubAuthCfg]}
+#       />
+#     ),
+#   }
+# });
+
+# const routes = (
+#   <FlatRoutes>
+#     <Route path="/" element={<Navigate to="catalog" />} />
+#     <Route path="/catalog" element={<CatalogIndexPage />} />
+#     <Route
+#       path="/catalog/:namespace/:kind/:name"
+#       element={<CatalogEntityPage />}
+#     >
+#       {entityPage}
+#     </Route>
+#     <Route path="/docs" element={<TechDocsIndexPage />} />
+#     <Route
+#       path="/docs/:namespace/:kind/:name/*"
+#       element={<TechDocsReaderPage />}
+#     >
+#       <TechDocsAddons>
+#         <ReportIssue />
+#       </TechDocsAddons>
+#     </Route>
+#     <Route path="/create" element={<ScaffolderPage />} />
+#     <Route path="/api-docs" element={<ApiExplorerPage />} />
+#     <Route
+#       path="/catalog-import"
+#       element={
+#         <RequirePermission permission={catalogEntityCreatePermission}>
+#           <CatalogImportPage />
+#         </RequirePermission>
+#       }
+#     />
+#     <Route path="/search" element={<SearchPage />}>
+#       {searchPage}
+#     </Route>
+#     <Route path="/settings" element={<UserSettingsPage />} />
+#     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
+#   </FlatRoutes>
+# );
+
+# export default app.createRoot(
+#   <>
+#     <AlertDisplay />
+#     <OAuthRequestDialog />
+#     <AppRouter>
+#       <Root>{routes}</Root>
+#     </AppRouter>
+#   </>,
+# );
+
+
+# cat packages/backend/src/index.ts
+# /*
+#  * Hi!
+#  *
+#  * Note that this is an EXAMPLE Backstage backend. Please check the README.
+#  *
+#  * Happy hacking!
+#  */
+
+# import { createBackend } from '@backstage/backend-defaults';
+
+# const backend = createBackend();
+
+# backend.add(import('@backstage/plugin-app-backend/alpha'));
+# backend.add(import('@backstage/plugin-proxy-backend/alpha'));
+# backend.add(import('@backstage/plugin-scaffolder-backend/alpha'));
+# backend.add(import('@backstage/plugin-techdocs-backend/alpha'));
+
+# // auth plugin
+# backend.add(import('@backstage/plugin-auth-backend'));
+# backend.add(import('@backstage/plugin-auth-backend-module-github-provider'));
+# // See https://backstage.io/docs/backend-system/building-backends/migrating#the-auth-plugin
+# backend.add(import('@backstage/plugin-auth-backend-module-guest-provider'));
+# // See https://backstage.io/docs/auth/guest/provider
+
+# // catalog plugin
+# backend.add(import('@backstage/plugin-catalog-backend/alpha'));
+# backend.add(
+#   import('@backstage/plugin-catalog-backend-module-scaffolder-entity-model'),
+# );
+
+# // permission plugin
+# backend.add(import('@backstage/plugin-permission-backend/alpha'));
+# backend.add(
+#   import('@backstage/plugin-permission-backend-module-allow-all-policy'),
+# );
+
+# // search plugin
+# backend.add(import('@backstage/plugin-search-backend/alpha'));
+# backend.add(import('@backstage/plugin-search-backend-module-catalog/alpha'));
+# backend.add(import('@backstage/plugin-search-backend-module-techdocs/alpha'));
+
+# backend.start();
 

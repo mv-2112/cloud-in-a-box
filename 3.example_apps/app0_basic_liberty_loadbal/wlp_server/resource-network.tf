@@ -6,10 +6,11 @@ resource "openstack_networking_floatingip_v2" "wlp-floatip_1" {
 }
 
 
-resource "openstack_compute_floatingip_associate_v2" "wlp-floatip-ass_1" {
+resource "openstack_networking_floatingip_associate_v2" "wlp-floatip-ass_1" {
   count       = var.expose_node == false ? 0 : var.number_to_build
   floating_ip = openstack_networking_floatingip_v2.wlp-floatip_1[count.index].address
-  instance_id = openstack_compute_instance_v2.wlp-instance[count.index].id
+  # instance_id = openstack_compute_instance_v2.wlp-instance[count.index].id
+  port_id = openstack_compute_instance_v2.wlp-instance[count.index].network.port
 }
 
 

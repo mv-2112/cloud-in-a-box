@@ -4,8 +4,8 @@ set -x >/tmp/jenkins_install.log 2>&1
 
 
 # Set domain search up correctly
-res_if=$(resolvectl domain | grep ${domain} | sed "s/.*(//;s/).*//")
-resolvectl domain $res_if ${project}.${domain}
+#res_if=$(resolvectl domain | grep ${domain} | sed "s/.*(//;s/).*//")
+#resolvectl domain $res_if ${project}.${domain}
 
 # # Lets speed things up - use the proxy
 # echo 'Acquire::http::Proxy "http://192.168.1.122:8000";' >> /etc/apt/apt.conf.d/proxy.conf

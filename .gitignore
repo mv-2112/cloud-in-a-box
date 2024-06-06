@@ -14,4 +14,5 @@ auth/**
 **/appinfo/**
 **/sunbeam-manifest.yaml
 **/sunbeam-preseed.yaml
+**/credentials.tfvars
 

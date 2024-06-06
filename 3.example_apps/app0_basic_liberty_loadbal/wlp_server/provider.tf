@@ -8,6 +8,6 @@ terraform {
 }
 
 # Configure the OpenStack Provider
-provider "openstack" {
-  use_octavia   = true
-}
+#provider "openstack" {
+  # use_octavia   = true
+#}

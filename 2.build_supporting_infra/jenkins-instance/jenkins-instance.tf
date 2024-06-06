@@ -28,7 +28,7 @@ resource "openstack_compute_instance_v2" "jenkins-instance" {
   security_groups = ["${var.project}-jenkins-secgroup"]
   #security_groups = ["${var.project}-jenkins-secgroup", "${openstack_networking_secgroup_v2.jenkins-secgroup.id}"]
 
-  user_data = templatefile("${path.module}/jenkins.userdata", { project = var.project, domain = var.domain, JENKINS_PASSWORD = random_password.jenkins_password.result, BUILDER_PASSWORD = random_password.builder_password.result, JENKINS_ADDRESS = "0.0.0.0", FLOAT_IP = openstack_networking_floatingip_v2.jenkins-floatip_1.address })
+  user_data = templatefile("${path.module}/jenkins.userdata", { project = var.project, domain = var.domain, JENKINS_PASSWORD = random_password.jenkins_password.result, BUILDER_PASSWORD = random_password.builder_password.result, JENKINS_ADDRESS = "0.0.0.0", FLOAT_IP = var.lb_floating_ip })
 
   network {
     name = "${var.project}-${var.domain}-network"

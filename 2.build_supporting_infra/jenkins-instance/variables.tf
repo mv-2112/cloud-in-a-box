@@ -6,4 +6,4 @@ variable "domain" {
   type = string
   default = "local"
 }
-variable "expose" { default = false }
+variable "lb_floating_ip" { default = "" }

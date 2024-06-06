@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 SECRET=$(juju show-unit vault/0 | yq ' .vault/0.relation-info[0].application-data.vault-initialization-secret-id ')
+SECRET=$(juju show-unit vault/0 |  yq ' .vault/0.relation-info[] | select(.related-endpoint=="vault-peers") | .application-data.vault-initialization-secret-id')
 ROOT_TOKEN=$(juju show-secret --reveal $SECRET | yq ' .*.content.roottoken ')
 UNSEAL_KEYS=( $(juju show-secret --reveal $SECRET | yq ' .*.content.unsealkeys ' | jq -r .[] ) )
 

@@ -1,5 +1,9 @@
+output "jenkins_id" {
+  value = [openstack_compute_instance_v2.jenkins-instance.id ]
+}
+
 output "external_ip" {
-  value = [openstack_networking_floatingip_v2.jenkins-floatip_1.address]
+  value = [var.lb_floating_ip]
 }
 
 output "internal_ip" {

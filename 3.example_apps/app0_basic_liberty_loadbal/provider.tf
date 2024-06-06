@@ -11,5 +11,5 @@ terraform {
 provider "openstack" {
   # user_name   = "builder-admin"
   tenant_name = "app0"
-  use_octavia   = true
+  # use_octavia   = true
 }

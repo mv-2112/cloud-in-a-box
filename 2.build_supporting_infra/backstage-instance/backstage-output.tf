@@ -1,13 +1,14 @@
-# output "floating_ip" {
-#   value = [openstack_networking_floatingip_v2.backstage-floatip_1.address]
-# }
+output "backstage_id" {
+  value = openstack_compute_instance_v2.backstage-instance.id
+}
+
 
 output "internal_ip" {
   value = [openstack_compute_instance_v2.backstage-instance.access_ip_v4 ]
 }
 
 output "external_ip" {
-  value = [openstack_networking_floatingip_v2.backstage-floatip_1.address ]
+  value = [var.lb_floating_ip ]
 }
 
 

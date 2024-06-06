@@ -113,21 +113,41 @@ if [[ ${snap_info["Rev"]} -le 335 ]]; then
   echo "Generating preseed file..."
   echo "Inserting disks for Ceph config..."
   sunbeam generate-preseed | yq ".microceph_config.*.osd_devices = [ "$(./misc/ceph_disk.sh -y)" ]" > ../sunbeam-preseed.yaml
-  sunbeam cluster bootstrap --preseed ../sunbeam-preseed.yaml $type
+  sunbeam cluster bootstrap --preseed ../sunbeam-preseed.yaml --role compute --role control --topology single --database single
+  sunbeam cluster bootstrap --preseed ../sunbeam-preseed.yaml --role storage --role compute --role control --topology single --database single
 else
   echo "Generating empty manifest file..."
   sunbeam manifest generate -f ../sunbeam-manifest.yaml
   echo "Inserting disks for Ceph config..."
   yq -i ".deployment.microceph_config.*.osd_devices = [ "$(./misc/ceph_disk.sh -y)" ]" ../sunbeam-manifest.yaml
-  echo "Temporary fix for 456-484 releases..."
-  yq -i ' .software.charms.sunbeam-machine.channel = "'$version'"' ../sunbeam-manifest.yaml
-  for each in placement glance cinder cinder-ceph horizon nova neutron keystone designate
-  do
-    yq -i ' .software.charms.'$each'-k8s.channel = "'$version'"' ../sunbeam-manifest.yaml
-  done
-  yq -i ' .software.charms.ovn-central-k8s.channel = "23.09/stable"' ../sunbeam-manifest.yaml
-  yq -i ' .software.charms.ovn-relay-k8s.channel = "23.09/stable"' ../sunbeam-manifest.yaml
-  yq -i ' .software.charms.openstack-hypervisor.channel = "'$version'"' ../sunbeam-manifest.yaml
+  # Fixed after https://github.com/canonical/snap-openstack/pull/224
+  # echo "Temporary fix for 456-484 releases..."
+  # yq -i ' .software.charms.sunbeam-machine.channel = "'$version'"' ../sunbeam-manifest.yaml
+  # for each in placement glance cinder cinder-ceph horizon nova neutron keystone designate
+  # do
+  #   yq -i ' .software.charms.'$each'-k8s.channel = "'$version'"' ../sunbeam-manifest.yaml
+  # done
+  # yq -i ' .software.charms.ovn-central-k8s.channel = "23.09/stable"' ../sunbeam-manifest.yaml
+  # yq -i ' .software.charms.ovn-relay-k8s.channel = "23.09/stable"' ../sunbeam-manifest.yaml
+  # yq -i ' .software.charms.openstack-hypervisor.channel = "'$version'"' ../sunbeam-manifest.yaml
+  # Align networks
+  management_cidr=$(yq ' .deployment.bootstrap.management_cidr' ../sunbeam-manifest.yaml)
+  mask=$(echo $management_cidr | cut -f2 -d/)
+  range=$(echo $management_cidr | cut -f1 -d/)
+  if [[ $mask -eq 24 ]]; then
+    base_range=$(echo $range | cut -f-3 -d.)
+    metallb_range="$base_range.20-$base_range.69"
+    yq -i ' .deployment.addons.metallb = "'$metallb_range'"' ../sunbeam-manifest.yaml
+    yq -i ' .deployment.k8s-addons.loadbalancer = "'$base_range'.70/24"' ../sunbeam-manifest.yaml
+  else
+    echo "WARNING - your network is not a simple home style /24 - check the metallb and management ranges are the same"
+  fi
+
+  # Reconstruct .software.charms in the manifeset, i.e, uncomment it and insert.
+  yq ' . | footComment ' ../sunbeam-manifest.yaml > ../comment_bits.yaml
+  yq -i '.software.charms += (load("../comment_bits.yaml") | .charms)' ../sunbeam-manifest.yaml
+  rm ../comment_bits.yaml
+  
   sunbeam cluster bootstrap --manifest ../sunbeam-manifest.yaml $type
 fi
 
@@ -135,7 +155,7 @@ fi
 
 
 juju switch openstack
-result=$(juju status --format json | jq ' .offers."cinder-ceph" | ."active-connected-count" ')
+result=$(juju status --format json | yq ' .offers."cinder-ceph" | ."active-connected-count" ')
 if [[ $result -ne 1 ]]; then
   juju integrate admin/controller.microceph cinder-ceph
 fi
