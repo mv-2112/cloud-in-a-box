@@ -2,13 +2,14 @@
 # Websphere Liberty Install
 set -x >/tmp/wlp_install.log 2>&1
 
-WLP_download="https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/release/2022-01-03_1900/openliberty-webProfile9-22.0.0.1.zip"
+# WLP_download="https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/release/2022-01-03_1900/openliberty-webProfile9-22.0.0.1.zip"
+WLP_download="https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/release/24.0.0.5/openliberty-webProfile10-24.0.0.5.zip"
 
 apt update
 apt install -y curl unzip xmlstarlet git openjdk-18-jdk-headless maven
 
-su - ubuntu -c "git clone https://github.com/openliberty/guide-getting-started.git"
-su - ubuntu -c "cd guide-getting-started/start && mvn liberty:run"
+su - ubuntu -c "git clone https://github.com/OpenLiberty/guide-getting-started.git"
+su - ubuntu -c "cd guide-getting-started/start && git checkout microProfile-5-20230328  && mvn liberty:run"
 
 
 
