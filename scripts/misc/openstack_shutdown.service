@@ -1,0 +1,14 @@
+# /etc/systemd/system/openstack_shutdown.service
+[Unit]
+Description=Shutdown Openstack cleanly...
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/true
+ExecStop=sudo snap stop microk8s;sudo snap stop openstack-hypervisor
+TimeoutStopSec=infinity
+
+[Install]
+WantedBy=multi-user.target
