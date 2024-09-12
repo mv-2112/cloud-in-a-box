@@ -7,6 +7,7 @@ sudo /usr/sbin/remove-juju-services
 sudo rm -rf /var/lib/juju
 rm ../auth/*
 rm -rf ~/.local/share/juju
+rm -rf ~/.local/share/openstack
 rm -rf ~/snap/openstack
 rm -rf ~/snap/openstack-hypervisor
 rm -rf ~/snap/microstack/
