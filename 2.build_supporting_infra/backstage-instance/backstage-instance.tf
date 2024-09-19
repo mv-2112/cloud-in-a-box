@@ -2,10 +2,6 @@
 data "openstack_images_image_v2" "ubuntu" {
   name        = var.image
   most_recent = true
-
-  properties = {
-    key = "value"
-  }
 }
 
 resource "random_password" "backstage_password" {

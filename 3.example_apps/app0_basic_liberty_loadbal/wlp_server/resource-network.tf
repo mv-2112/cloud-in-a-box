@@ -14,26 +14,26 @@ resource "openstack_networking_floatingip_associate_v2" "wlp-floatip-ass_1" {
 }
 
 
-resource "openstack_dns_recordset_v2" "wlp-dns-1" {
-  count       = var.number_to_build
-  zone_id     = data.openstack_dns_zone_v2.this-domain.id
-  name        = "${openstack_compute_instance_v2.wlp-instance[count.index].name}.${var.project}.${var.domain}."
-  description = "Wlp Server"
-  ttl         = 3000
-  type        = "A"
-  records     = [openstack_compute_instance_v2.wlp-instance[count.index].access_ip_v4]
-}
+# resource "openstack_dns_recordset_v2" "wlp-dns-1" {
+#   count       = var.number_to_build
+#   zone_id     = data.openstack_dns_zone_v2.this-domain.id
+#   name        = "${openstack_compute_instance_v2.wlp-instance[count.index].name}.${var.project}.${var.domain}."
+#   description = "Wlp Server"
+#   ttl         = 3000
+#   type        = "A"
+#   records     = [openstack_compute_instance_v2.wlp-instance[count.index].access_ip_v4]
+# }
 
 
-resource "openstack_dns_recordset_v2" "wlp-dns-2" {
-  count       = var.expose_node == false ? 0 : var.number_to_build
-  zone_id     = data.openstack_dns_zone_v2.this-domain.id
-  name        = "${openstack_compute_instance_v2.wlp-instance[count.index].name}-external.${var.project}.${var.domain}."
-  description = "Wlp Server"
-  ttl         = 3000
-  type        = "A"
-  records     = [openstack_networking_floatingip_v2.wlp-floatip_1[count.index].address]
-}
+# resource "openstack_dns_recordset_v2" "wlp-dns-2" {
+#   count       = var.expose_node == false ? 0 : var.number_to_build
+#   zone_id     = data.openstack_dns_zone_v2.this-domain.id
+#   name        = "${openstack_compute_instance_v2.wlp-instance[count.index].name}-external.${var.project}.${var.domain}."
+#   description = "Wlp Server"
+#   ttl         = 3000
+#   type        = "A"
+#   records     = [openstack_networking_floatingip_v2.wlp-floatip_1[count.index].address]
+# }
 
 
 

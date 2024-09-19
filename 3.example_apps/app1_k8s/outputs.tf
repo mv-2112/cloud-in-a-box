@@ -30,8 +30,8 @@ output "app1_message" {
 
 
 resource "local_file" "app1-details" {
-  filename = "./appinfo/app1.txt"
-  content  = <<-EOT
+  filename        = "./appinfo/app1.txt"
+  content         = <<-EOT
   mkdir config-dir
   openstack coe cluster config app1-k8s-cluster --dir config-dir/
   export KUBECONFIG=$(pwd)/config-dir/config

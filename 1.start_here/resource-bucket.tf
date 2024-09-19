@@ -7,7 +7,7 @@ resource "openstack_objectstorage_container_v1" "build_container" {
   #     location = "tf-test-container-versions"
   #   }
 
-  versioning = true
+  # versioning = true
 
   container_read  = ".r:-${openstack_identity_user_v3.domain_user_1.name}"
   container_write = "${openstack_identity_user_v3.domain_user_1.name}"

@@ -10,6 +10,12 @@ variable "external_network" {
 }
 
 
+variable "dns_server" {
+  type    = list
+  default = [ "192.168.68.1" ]
+}
+
+
 # Set this to form the prefix for the build project
 variable "build_project" { default = "builder" }
 

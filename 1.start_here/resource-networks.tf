@@ -10,6 +10,8 @@ resource "openstack_networking_subnet_v2" "builder_subnet" {
   network_id = openstack_networking_network_v2.builder_network.id
   cidr       = "192.168.99.0/24"
   ip_version = 4
+  dns_nameservers      = var.dns_server
+  # dns_publish_fixed_ip = true
   tenant_id  = openstack_identity_project_v3.domain.id
 }
 
@@ -36,13 +38,14 @@ resource "openstack_networking_network_v2" "network" {
 
 
 resource "openstack_networking_subnet_v2" "subnet" {
-  for_each   = toset(var.app_projects)
-  name       = "${each.key}-subnet-1"
-  network_id = openstack_networking_network_v2.network[each.key].id
-  cidr       = "192.168.${100 + index(var.app_projects, each.key)}.0/24"
-  ip_version = 4
-  # dns_nameservers = var.dns_server
-  tenant_id = each.key
+  for_each             = toset(var.app_projects)
+  name                 = "${each.key}-subnet-1"
+  network_id           = openstack_networking_network_v2.network[each.key].id
+  cidr                 = "192.168.${100 + index(var.app_projects, each.key)}.0/24"
+  ip_version           = 4
+  dns_nameservers      = var.dns_server
+  # dns_publish_fixed_ip = true
+  tenant_id            = each.key
 }
 
 resource "openstack_networking_router_v2" "app_router_1" {

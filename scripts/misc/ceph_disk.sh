@@ -7,10 +7,10 @@ ROOT_DISK_WWNTYPE=$(echo ${ROOT_DISK_WWN} | cut -d"." -f1)
 ROOT_DISK_WWNUID=$(echo ${ROOT_DISK_WWN} | cut -d"." -f2)
 AVAILABLE_DISKS=$(ls  /dev/disk/by-id/wwn* | grep -v part | grep -v ${ROOT_DISK_WWNUID} | tr "\n" "," | sed 's/,$//')
 
-# echo "Identified root partition as [${ROOT_PARTITION_NAME}]"
-# echo "Identified root disk device as [${ROOT_DISK}]"
-# echo "WWN for [${ROOT_DISK}] is [${ROOT_DISK_WWNTYPE}].[${ROOT_DISK_WWNUID}]"
-# echo "Excluding $ROOT_DISK we found [${AVAILABLE_DISKS}] potentially usable for Ceph"
+echo "Identified root partition as [${ROOT_PARTITION_NAME}]"
+echo "Identified root disk device as [${ROOT_DISK}]"
+echo "WWN for [${ROOT_DISK}] is [${ROOT_DISK_WWNTYPE}].[${ROOT_DISK_WWNUID}]"
+echo "Excluding $ROOT_DISK we found [${AVAILABLE_DISKS}] potentially usable for Ceph"
 
 usage() {                                 
   echo "Usage: $0 [ -z <disk string> ] [ -i ]" 1>&2 
