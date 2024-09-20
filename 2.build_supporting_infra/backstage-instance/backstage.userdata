@@ -68,10 +68,10 @@ yarn --cwd packages/app add @harnessio/backstage-plugin-ci-cd
 yq -i ' .app.baseUrl = "http://localhost:3000" ' $CONFIG_FILE1
 yq -i ' .app.listen.host = "0.0.0.0" ' $CONFIG_FILE1
 yq -i ' .app.listen.port = "3000" ' $CONFIG_FILE1
-yq -i ' .backend.baseUrl = "http://${LB_IP}:7007"' $CONFIG_FILE1
+yq -i ' .backend.baseUrl = "http://${EXTERNAL_ADDRESS}:7007"' $CONFIG_FILE1
 yq -i ' .backend.listen.host = "0.0.0.0" ' $CONFIG_FILE1
 yq -i ' .backend.listen.port = "7007" ' $CONFIG_FILE1
-yq -i ' .backend.cors.origin = "http://${LB_IP}:3000"' $CONFIG_FILE1
+yq -i ' .backend.cors.origin = "http://${EXTERNAL_ADDRESS}:3000"' $CONFIG_FILE1
 yq -i ' .backend.database.client = "pg" ' $CONFIG_FILE1
 yq -i ' del(.backend.database.connection)' $CONFIG_FILE1
 yq -i ' .backend.database.connection += {"host": "127.0.0.1"} ' $CONFIG_FILE1
