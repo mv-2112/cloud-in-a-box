@@ -19,9 +19,10 @@ resource "openstack_compute_instance_v2" "backstage-instance" {
   #security_groups = ["${var.project}-backstage-secgroup", "${openstack_networking_secgroup_v2.backstage-secgroup.id}"]
 
   block_device {
-    uuid                  = data.openstack_images_image_v2.ubuntu.id
+    uuid = data.openstack_images_image_v2.ubuntu.id
     source_type           = "image"
     destination_type      = "volume"
+    volume_size           = 10
     boot_index            = 0
     delete_on_termination = true
   }
