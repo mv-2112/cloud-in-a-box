@@ -84,6 +84,7 @@ yq -i ' .auth.providers.github.development.signIn.resolvers += {"resolver": "ema
 yq -i ' .auth.providers.github.development.clientId = "${AUTH_GITHUB_CLIENT_ID}" ' $CONFIG_FILE1
 yq -i ' .auth.providers.github.development.clientSecret = "${AUTH_GITHUB_CLIENT_SECRET}" ' $CONFIG_FILE1
 yq -i ' del(.auth.providers.guest)' $CONFIG_FILE1
+yq -i ' .enableExperimentalRedirectFlow = true' $CONFIG_FILE1
 chown backstage:backstage $CONFIG_FILE1
 chmod 640 $CONFIG_FILE1
 
