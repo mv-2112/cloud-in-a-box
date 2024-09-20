@@ -29,7 +29,7 @@ resource "openstack_compute_instance_v2" "backstage-instance" {
   user_data = templatefile("${path.module}/backstage.userdata", { project = var.project,
     domain                    = var.domain,
     BACKSTAGE_PASSWORD        = random_password.backstage_password.result,
-    # FLOAT_IP                  = openstack_networking_floatingip_v2.backstage-floatip_1.address,
+    EXTERNAL_ADDRESS          = var.external_address
     GITHUB_PAT                = var.github_pat,
     AUTH_GITHUB_CLIENT_ID     = var.auth_github_client_id,
     AUTH_GITHUB_CLIENT_SECRET = var.auth_github_client_secret
