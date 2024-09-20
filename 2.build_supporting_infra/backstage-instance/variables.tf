@@ -23,10 +23,6 @@ variable "domain" {
   default = "example.com"
 }
 
-# variable "expose" {
-#   default = false
-# }
-
 variable "github_pat" {
   type = string
   sensitive = true
@@ -42,4 +38,12 @@ variable "auth_github_client_secret" {
   sensitive = true
 }
 
-variable "lb_floating_ip" { default = "" }
+# variable "lb_floating_ip" { default = "" }
+# variable "expose" {
+#   default = false
+# }
+
+variable "external_address" {
+  type = string
+  default = "localhost"
+}
