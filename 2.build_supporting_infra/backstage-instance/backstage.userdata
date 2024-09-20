@@ -40,6 +40,7 @@ MY_IP=$(curl 169.254.169.254/1.0/meta-data/local-ipv4) || "127.0.0.1"
 su - $BACKSTAGE_USER -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash'
 su - $BACKSTAGE_USER -c 'export NVM_DIR="$([ -z "$${XDG_CONFIG_HOME-}" ] && printf %s "$${HOME}/.nvm" || printf %s "$${XDG_CONFIG_HOME}/nvm")"'
 
+chown -R $BACKSTAGE_USER:$BACKSTAGE_USER /home/backstage/.nvm
 
 cat << EOF > /tmp/backstage_install.sh
 #!/usr/bin/env bash
@@ -58,10 +59,11 @@ echo $APPDIR | npx @backstage/create-app@latest
 echo "Add plugins and start..."
 cd $APPDIR
 yarn install
-yarn add --cwd packages/backend pg
+yarn --cwd packages/backend add pg
+yarn --cwd packages/app add @backstage/plugin-app-backend
 # yarn add --cwd packages/app @backstage/plugin-jenkins
-yarn add --cwd packages/app @backstage-community/plugin-jenkins 
-yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd
+yarn --cwd packages/app add @backstage-community/plugin-jenkins 
+yarn --cwd packages/app add @harnessio/backstage-plugin-ci-cd
 
 yq -i ' .app.baseUrl = "http://$MY_IP:3000" ' $CONFIG_FILE1
 yq -i ' .backend.baseUrl = "http://$MY_IP:7007"' $CONFIG_FILE1
