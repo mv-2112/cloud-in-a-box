@@ -91,44 +91,55 @@ yq -i ' .integrations.github += [{"host": "github.com", "token": "${GITHUB_PAT}"
 chown backstage:backstage $CONFIG_FILE2
 chmod 640 $CONFIG_FILE2
 
-patch ./packages/app/src/App.tsx /tmp/patch.txt
+patch -ci ./packages/app/src/App.tsx /tmp/patch.txt
 
 yarn dev &
 EOF
 
 cat << EOF > /tmp/patch.txt
---- packages/app/src/App.tsx	2024-06-04 17:20:32.838929666 +0000
-+++ packages/app/src/App.tsx2	2024-06-04 17:36:38.181929822 +0000
-@@ -36,6 +36,8 @@
- import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
- import { RequirePermission } from '@backstage/plugin-permission-react';
- import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
-+import { githubAuthApiRef } from '@backstage/core-plugin-api';
- 
- const app = createApp({
-   apis,
-@@ -57,8 +59,19 @@
-     });
-   },
-   components: {
--    SignInPage: props => <SignInPage {...props} auto providers={['guest']} />,
--  },
-+    SignInPage: props => (
-+      <SignInPage
-+        {...props}
-+        auto
-+        provider={{
-+          id: 'github-auth-provider',
-+          title: 'GitHub',
-+          message: 'Sign in using GitHub',
-+          apiRef: githubAuthApiRef,
-+        }}
-+      />
-+    ),
-+  }
- });
- 
- const routes = (
+*** ./packages/app/src/App.tsx.orig	2024-09-20 12:36:25.281470898 +0000
+--- ./packages/app/src/App.tsx	2024-09-20 12:37:47.064967942 +0000
+***************
+*** 37,42 ****
+--- 37,44 ----
+  import { RequirePermission } from '@backstage/plugin-permission-react';
+  import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
+  
++ import { githubAuthApiRef } from '@backstage/core-plugin-api';
++ 
+  const app = createApp({
+    apis,
+    bindRoutes({ bind }) {
+***************
+*** 57,64 ****
+      });
+    },
+    components: {
+!     SignInPage: props => <SignInPage {...props} auto providers={['guest']} />,
+!   },
+  });
+  
+  const routes = (
+--- 59,77 ----
+      });
+    },
+    components: {
+!     SignInPage: props => (
+!       <SignInPage
+!         {...props}
+!         auto
+!         provider={{
+!           id: 'github-auth-provider',
+!           title: 'GitHub',
+!           message: 'Sign in using GitHub',
+!           apiRef: githubAuthApiRef,
+!         }}
+!       />
+!     ),
+!   }
+  });
+  
+  const routes = (
 EOF
 
 chown $BACKSTAGE_USER:$BACKSTAGE_USER /tmp/patch.txt
