@@ -38,12 +38,11 @@ variable "auth_github_client_secret" {
   sensitive = true
 }
 
-# variable "lb_floating_ip" { default = "" }
 # variable "expose" {
 #   default = false
 # }
 
-variable "external_address" {
+variable "lb_floating_ip" {
   type = string
   default = "localhost"
 }
