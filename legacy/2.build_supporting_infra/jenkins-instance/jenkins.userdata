@@ -1,0 +1,191 @@
+#!/bin/bash
+# Jenkins Install
+set -x >/tmp/jenkins_install.log 2>&1
+
+
+# Set domain search up correctly
+#res_if=$(resolvectl domain | grep ${domain} | sed "s/.*(//;s/).*//")
+#resolvectl domain $res_if ${project}.${domain}
+
+# # Lets speed things up - use the proxy
+# echo 'Acquire::http::Proxy "http://192.168.1.122:8000";' >> /etc/apt/apt.conf.d/proxy.conf
+# echo 'Acquire::https::Proxy "http://192.168.1.122:8000";' >> /etc/apt/apt.conf.d/proxy.conf
+
+
+# As per https://pkg.jenkins.io/debian-stable/
+# curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee \
+#     /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+  
+# Then add a Jenkins apt repository entry:
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+  
+
+# Update your local package index, install java, then finally install Jenkins:
+sudo apt update
+sudo apt install openjdk-17-jre -y
+sudo apt install jenkins  -y
+
+# Allow some time for it to generate the bare essentials
+sleep 60
+
+# Give some info out - can be removed when we are happy it works
+CURRENT_JENKINS_PASSWORD=$(cat /var/lib/jenkins/secrets/initialAdminPassword)
+
+echo "JENKINS_PASSWORD [${JENKINS_PASSWORD}]"
+echo "CURRENT_JENKINS_PASSWORD [$CURRENT_JENKINS_PASSWORD]"
+echo "JENKINS_ADDRESS  [${JENKINS_ADDRESS}]"
+
+systemctl stop jenkins
+
+# Disable the setup wizard
+sed -i 's/JAVA_ARGS="[^"]*/& -Djenkins.install.runSetupWizard=false/' /etc/default/jenkins 
+
+# Mark setup completed
+mkdir /var/lib/jenkins/init.groovy.d
+cat << EOF > /var/lib/jenkins/init.groovy.d/basic-security.groovy
+#!groovy
+
+import jenkins.model.*
+import hudson.util.*;
+import jenkins.install.*;
+
+def instance = Jenkins.getInstance()
+
+instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
+EOF
+
+# Restart Jenkins 
+systemctl restart jenkins && mv /var/lib/jenkins/init.groovy.d/basic-security.groovy /root/basic-security.groovy.old
+
+
+# Install Plugins
+cat << EOF > /tmp/plugins.txt
+ant:latest
+antisamy-markup-formatter:latest
+build-timeout:latest
+cloudbees-folder:latest
+configuration-as-code:latest
+configuration-as-code-groovy:latest
+credentials-binding:latest
+email-ext:latest
+git:latest
+github-branch-source:latest
+gradle:latest
+ldap:latest
+mailer:latest
+matrix-auth:latest
+openstack-cloud:latest
+pam-auth:latest
+pipeline-github-lib:latest
+pipeline-stage-view:latest
+ssh-slaves:latest
+terraform:latest
+timestamper:latest
+workflow-aggregator:latest
+ws-cleanup:latest
+EOF
+
+
+# Install some plugins from jenkins-cli
+sleep 60
+curl -O http://${JENKINS_ADDRESS}:8080/jnlpJars/jenkins-cli.jar
+for each in $(cat /tmp/plugins.txt)
+do
+  java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://${JENKINS_ADDRESS}:8080/ -webSocket install-plugin $each
+done
+
+
+# java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://0.0.0.0:8080/ -webSocket  restart
+systemctl restart jenkins
+
+
+# Wait for Jenkins to update - this isn't working on the if test - as if or in the while
+while true
+do
+  echo "Testing if Jenkins is running yet..."
+  RESULT=$(java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://${JENKINS_ADDRESS}:8080/ -webSocket version > /dev/null 2>&1; echo $?)
+  if [[ $RESULT == "0" ]]; then
+    echo "Jenkins is up and running"
+    break
+  else
+    echo "Jenkins is still starting..."
+  fi
+  sleep 10
+done
+
+
+# Define some Security
+cat << EOF > /tmp/basic.yaml
+jenkins:
+  authorizationStrategy:
+    projectMatrix:
+      permissions:
+      - "GROUP:Job/Read:authenticated"
+      - "GROUP:View/Read:authenticated"
+      - "USER:Overall/Administer:admin"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+      - id: "admin"
+        password: "${JENKINS_PASSWORD}"
+        name: "admin"
+        properties:
+        - "apiToken"
+        - "myView"
+        - "timezone"
+        - "experimentalFlags"
+        - "mailer"
+        - preferredProvider:
+            providerId: "default"
+      - id: "builder"
+        password: "${BUILDER_PASSWORD}"
+        name: "Builder"
+        properties:
+        - "apiToken"
+        - "myView"
+        - preferredProvider:
+            providerId: "default"
+        - "timezone"
+        - "experimentalFlags"
+        - mailer:
+            emailAddress: "builder@example.com"
+  authorizationStrategy: loggedInUsersCanDoAnything
+unclassified:
+  gitHubPluginConfig:
+    hookUrl: "http://${JENKINS_ADDRESS}:8080/github-webhook/"
+  location:
+    adminAddress: "address not configured yet <nobody@nowhere>"
+    url: "http://${FLOAT_IP}:8080/"
+EOF
+
+java -jar jenkins-cli.jar -auth admin:$${CURRENT_JENKINS_PASSWORD} -s http://${JENKINS_ADDRESS}:8080/ -webSocket  apply-configuration < /tmp/basic.yaml
+
+# Restart Jenkins 
+systemctl restart jenkins
+
+
+# Generate a token for Builder User
+cat << EOF > /tmp/generate_build_token.groovy
+import hudson.model.*
+import jenkins.model.*
+import jenkins.security.*
+import jenkins.security.apitoken.*
+
+// script parameters
+userName = "builder"
+tokenName = "backstage-token"
+
+user = User.get(userName, false)
+apiTokenProperty = user.getProperty(ApiTokenProperty.class)
+result = apiTokenProperty.tokenStore.generateNewToken(tokenName)
+user.save()
+println(result.plainValue)
+return result.plainValue
+EOF
+
+echo "BUILDER TOKEN: [$(java -jar jenkins-cli.jar -auth admin:${JENKINS_PASSWORD} -s http://${JENKINS_ADDRESS}:8080/ -webSocket  groovy = < /tmp/generate_build_token.groovy)]"
