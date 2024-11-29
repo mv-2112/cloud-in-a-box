@@ -5,6 +5,8 @@
 # Source https://docs.openstack.org/magnum/latest/install/launch-instance.html
 # Source https://builds.coreos.fedoraproject.org/browser?stream=stable&arch=x86_64
 
+distro_tag="fedora-coreos" # i.e as opposed to just coreos
+
 
 get_coreos() {
     FCOS_VERSION=$1
@@ -16,13 +18,12 @@ get_coreos() {
                       --disk-format=qcow2 \
                       --container-format=bare \
                       --file=fedora-coreos-${FCOS_VERSION}-openstack.x86_64.qcow2 \
-                      --property os_distro='fedora-coreos' \
+                      --property os_distro=$distro_tag \
                       fedora-coreos-${FCOS_VERSION}
 }
 
 
-# for each in "35.20220116.3.0" "38.20230806.3.0" "38.20231027.3.2" "40.20241019.3.0 "
-for each in "40.20241019.3.0 "
+for each in "35.20220116.3.0" "38.20230806.3.0" "38.20231027.3.2" "40.20241019.3.0 "
 do
     echo "Getting CoreOS $each"
     get_coreos $each

@@ -1,0 +1,26 @@
+# Set this to form the prefix for the build project
+variable "builder_project" { default = "builder" }
+
+
+variable "domain" {
+  type    = string
+  default = "${SITE}"
+}
+
+
+variable "dns_servers" {
+  type    = list
+  default = ["8.8.8.8", "8.8.4.4"]
+}
+
+
+variable "external_network" {
+  type    = string
+  default = "external-network"
+}
+
+
+variable "cluster_template" {
+  type    = string
+  default = "${CLUSTER_TEMPLATE}"
+}
