@@ -15,5 +15,7 @@ auth/**
 **/sunbeam-manifest.yaml
 **/sunbeam-preseed.yaml
 **/credentials.tfvars
+**/terraform.tfvars
+**/*.qcow2
 
 2.build_supporting_infra/terraform.tfvars

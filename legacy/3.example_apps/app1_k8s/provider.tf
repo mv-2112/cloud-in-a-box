@@ -10,6 +10,6 @@ terraform {
 # Configure the OpenStack Provider
 provider "openstack" {
   # user_name   = "builder-admin"
-  tenant_name = "app1"
+#  tenant_name = "app1"
   # use_octavia   = true
 }

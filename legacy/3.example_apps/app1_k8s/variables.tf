@@ -1,10 +1,10 @@
 # Set this to form the prefix for the build project
-variable "app_project" { default = "app1" }
+variable "app_project" { default = "admin" }
 
 
 variable "domain" {
   type    = string
-  default = "example.com"
+  default = "admin_domain"
 }
 
 variable "default_image" {

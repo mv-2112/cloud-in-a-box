@@ -7,5 +7,5 @@ UNSEAL_KEYS=( $(juju show-secret --reveal $SECRET | yq ' .*.content.unsealkeys '
 
 for unseal_key in "${UNSEAL_KEYS[@]}"
 do
-   kubectl exec -n openstack vault-0 -c vault -- vault operator unseal -tls-skip-verify $unseal_key
+   microk8s kubectl exec -n openstack vault-0 -c vault -- vault operator unseal -tls-skip-verify $unseal_key
 done
