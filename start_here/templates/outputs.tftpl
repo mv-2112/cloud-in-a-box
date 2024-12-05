@@ -1,5 +1,17 @@
-resource "local_sensitive_file" "builder_k8s_config" {
-  filename        = "builder-cluster/config"
-  content         = openstack_containerinfra_cluster_v1.cluster_1.kubeconfig.raw_config
+locals {
+  ssh_key = <<-EOT
+    ${openstack_compute_keypair_v2.keypair.private_key}
+  EOT
+}
+
+
+resource "local_file" "output-ssh-key" {
+  filename        = "./builder.ssh"
+  content         = local.ssh_key
   file_permission = "0600"
+}
+
+
+output "ssh_message" {
+  value = "Your ssh key to access ${var.domain} builder machines via ssh is contained in builder.ssh. Usage: ssh -i builder.ssh <user>@<host>"
 }

@@ -18,15 +18,3 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
   # added as when creating with terraform gets ignored from template
   floating_ip_enabled = true
 }
-
-# resource "openstack_containerinfra_nodegroup_v1" "nodegroup_1" {
-#   name       = "$ { var.app_project}-k8s-nodegroup-1"
-#   cluster_id = openstack_containerinfra_cluster_v1.cluster_1.id
-#   node_count = 2
-# }
-
-# resource "openstack_containerinfra_nodegroup_v1" "nodegroup_2" {
-#   name       = "$ { var.app_project}-k8s-nodegroup-2"
-#   cluster_id = openstack_containerinfra_cluster_v1.cluster_1.id
-#   node_count = 2
-# }
