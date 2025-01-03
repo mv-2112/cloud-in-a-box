@@ -6,14 +6,14 @@ variable "sites" {
   }))
 
   default = {
-    "www.example1.com" = {
-      owner    = "Alice"
-      description    = "www.example1.com"
+    "example.com" = {
+      owner    = "Matt"
+      description    = "example.com"
     }
-    "www.example2.com" = {
-      owner    = "Bob"
-      description    = "www.example2.com"
-    }
+    # "www.example2.com" = {
+    #   owner    = "Bob"
+    #   description    = "www.example2.com"
+    # }
   }
 }
 

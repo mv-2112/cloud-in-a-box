@@ -35,6 +35,5 @@ resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_1" {
     calico_tag                     = "v3.26.4"
     octavia_provider               = "ovn"
     octavia_lb_algorithm           = "SOURCE_IP_PORT"
-
   }
 }
