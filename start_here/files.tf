@@ -97,9 +97,15 @@ resource "local_file" "app_deploy_jenkins" {
   filename = "../${each.key}/40_app_deploy/jenkins.tf"
 }
 
+resource "local_file" "app_deploy_istio" {
+  for_each = var.sites
+  content = templatefile("templates/40_app_deploy/istio.tftpl", { SITE = each.key, CLUSTER_TEMPLATE_ID = openstack_containerinfra_clustertemplate_v1.clustertemplate_1.id })
+  filename = "../${each.key}/40_app_deploy/istio.tf"
+}
+
 resource "local_file" "app_deploy_provider" {
   for_each = var.sites
-  content = templatefile("templates/40_app_deploy/provider.tftpl", { SITE = each.key, CLUSTER_TEMPLATE_ID = openstack_containerinfra_clustertemplate_v1.clustertemplate_1.id })
+  content = file("templates/40_app_deploy/provider.tftpl")
   filename = "../${each.key}/40_app_deploy/provider.tf"
 }
 
@@ -107,6 +113,12 @@ resource "local_file" "app_deploy_outputs" {
   for_each = var.sites
   content = file("templates/40_app_deploy/outputs.tftpl")
   filename = "../${each.key}/40_app_deploy/outputs.tf"
+}
+
+resource "local_file" "app_deploy_variables" {
+  for_each = var.sites
+  content = templatefile("templates/40_app_deploy/variables.tftpl", { SITE = each.key, CLUSTER_TEMPLATE_ID = openstack_containerinfra_clustertemplate_v1.clustertemplate_1.id })
+  filename = "../${each.key}/40_app_deploy/variables.tf"
 }
 
 

@@ -2,6 +2,12 @@ locals {
   ssh_key = <<-EOT
     ${openstack_compute_keypair_v2.keypair.private_key}
   EOT
+  cluster_vars = <<-EOT
+    variable "k8s_cluster" {
+      type    = string
+      default = ${openstack_containerinfra_cluster_v1.cluster_1.name}
+    }
+  EOT
 }
 
 

@@ -1,3 +1,7 @@
+snap install openstack --channel 2024.1/edge
+
+sunbeam prepare-node-script --bootstrap | bash -x && newgrp snap_daemon
+
 sunbeam cluster bootstrap --role compute --role control --role storage --topology single --database single
 sunbeam configure --accept-defaults --openrc demo-openrc
 sunbeam openrc > admin_openrc
