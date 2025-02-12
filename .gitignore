@@ -4,11 +4,9 @@
 **/terraform.tfstate.*.backup
 **/terraform.tfstate.backup
 **/terraform.tfstate
-**/*-openrc.sh
+**/*openrc
+**/vault_keys
 **/*.ssh
-**/*.tfstate
-**/*.backup
-app1/software/*
 auth/**
 **/cookies.txt
 **/appinfo/**
@@ -17,5 +15,4 @@ auth/**
 **/credentials.tfvars
 **/terraform.tfvars
 **/*.qcow2
-
-2.build_supporting_infra/terraform.tfvars
+**/40_app_deploy/istio*
