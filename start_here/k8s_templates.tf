@@ -1,7 +1,7 @@
 resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate" {
   for_each = var.k8s_templates
   name                  = "generic-k8s-${each.key}-template"
-  image                 = openstack_images_image_v2.fedora_coreos[each.value.core_os_image].id
+  image                 = openstack_images_image_v2.fedora_coreos[each.value.core_os_image].name
   coe                   = "kubernetes"
   flavor                = "m1.large"
   master_flavor         = "m1.medium"
