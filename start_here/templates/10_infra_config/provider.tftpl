@@ -15,6 +15,6 @@ terraform {
 
 
 provider "kubernetes" {
-  config_path = "builder-cluster/config"
-  config_context = "builder-cluster"
+  config_path = "../config/${var.k8s_cluster}/config"
+  config_context = "${var.k8s_cluster}"
 }

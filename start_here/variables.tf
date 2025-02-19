@@ -18,6 +18,22 @@ variable "sites" {
 }
 
 
+# Create our templates...
+#
+#  Rancher versions here: https://github.com/rancher/hyperkube/releases?page=1
+#
+#  Labels documented here https://docs.openstack.org/magnum/latest/user/#cluster-drivers
+#  https://github.com/kubernetes/k8s.io/blob/main/registry.k8s.io/images/k8s-staging-provider-os/images.yaml
+#  https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/EU/sig-storage for csi-resizer etc
+#
+#  Containerd/k8s compat here: https://containerd.io/releases/#kubernetes-support
+#  The sha sum comes from cri-containerd-cni
+#
+#  Calico tags: https://quay.io/repository/calico/kube-controllers?tab=tags&tag=latest
+#  or here: https://github.com/projectcalico/calico/releases
+
+
+
 variable "k8s_templates" {
   type = map(object({
     core_os_image                  = string
@@ -47,7 +63,7 @@ variable "k8s_templates" {
       k8s_keystone_auth_tag          = "v1.27.3"
       magnum_auto_healer_tag         = "v1.27.3"
       octavia_ingress_controller_tag = "v1.27.3"
-      calico_tag                     = "v3.26.4"
+      calico_tag                     = "v3.29.1"
       octavia_provider               = "ovn"
       octavia_lb_algorithm           = "SOURCE_IP_PORT"
       # Added to hopefully keep LB's live - may still not solve no traffic issue...
@@ -63,7 +79,7 @@ variable "k8s_templates" {
       k8s_keystone_auth_tag          = "v1.27.3"
       magnum_auto_healer_tag         = "v1.27.3"
       octavia_ingress_controller_tag = "v1.27.3"
-      calico_tag                     = "v3.26.4"
+      calico_tag                     = "v3.29.1"
       octavia_provider               = "ovn"
       octavia_lb_algorithm           = "SOURCE_IP_PORT"
       # Added to hopefully keep LB's live - may still not solve no traffic issue...
@@ -72,14 +88,14 @@ variable "k8s_templates" {
     "v1.30.5-rancher1" = {
       core_os_image                  = "38.20230806.3.0"
       container_runtime              = "containerd"
-      containerd_version             = "1.6.31"
-      containerd_tarball_sha256      = "75afb9b9674ff509ae670ef3ab944ffcdece8ea9f7d92c42307693efa7b6109d"
+      containerd_version             = "1.7.25"
+      containerd_tarball_sha256      = "6b987a57a3f2257ca2cc5f4697b481eec917bd2085299aeab0547d388ff8b983"
       cloud_provider_tag             = "v1.30.2"
       cinder_csi_plugin_tag          = "v1.30.2"
       k8s_keystone_auth_tag          = "v1.30.2"
       magnum_auto_healer_tag         = "v1.30.2"
       octavia_ingress_controller_tag = "v1.30.2"
-      calico_tag                     = "v3.26.4"
+      calico_tag                     = "v3.29.1"
       octavia_provider               = "ovn"
       octavia_lb_algorithm           = "SOURCE_IP_PORT"
       # Added to hopefully keep LB's live - may still not solve no traffic issue...
@@ -88,14 +104,14 @@ variable "k8s_templates" {
     "v1.31.5-rancher1" = {
       core_os_image                  = "38.20230806.3.0"
       container_runtime              = "containerd"
-      containerd_version             = "1.6.31"
-      containerd_tarball_sha256      = "75afb9b9674ff509ae670ef3ab944ffcdece8ea9f7d92c42307693efa7b6109d"
+      containerd_version             = "1.7.25"
+      containerd_tarball_sha256      = "6b987a57a3f2257ca2cc5f4697b481eec917bd2085299aeab0547d388ff8b983"
       cloud_provider_tag             = "v1.31.2"
       cinder_csi_plugin_tag          = "v1.31.2"
       k8s_keystone_auth_tag          = "v1.31.2"
       magnum_auto_healer_tag         = "v1.31.2"
       octavia_ingress_controller_tag = "v1.31.2"
-      calico_tag                     = "v3.26.4"
+      calico_tag                     = "v3.29.1"
       octavia_provider               = "ovn"
       octavia_lb_algorithm           = "SOURCE_IP_PORT"
       # Added to hopefully keep LB's live - may still not solve no traffic issue...

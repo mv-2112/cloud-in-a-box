@@ -1,8 +1,8 @@
 # Drop out files for each domain and builder projects
 
 resource "local_sensitive_file" "output-app-rcfile" {
-  for_each = var.sites
-  filename        = "../${each.key}/builder_openrc"
+  for_each        = var.sites
+  filename        = "../sites/${each.key}/builder_openrc"
   content         = <<-EOF
 # Automagically generated rc file for ${each.key} builder user
 export OS_USERNAME=${openstack_identity_user_v3.domain_user[each.key].name}
@@ -23,38 +23,38 @@ EOF
 
 resource "local_file" "main_builder_terraform" {
   for_each = var.sites
-  content = templatefile("templates/00_infra/builder_cluster.tftpl", { SITE = each.key })
-  filename = "../${each.key}/00_infra/main.tf"
+  content  = templatefile("templates/00_infra/builder_cluster.tftpl", { SITE = each.key })
+  filename = "../sites/${each.key}/00_infra/main.tf"
 }
 
 resource "local_file" "infra_provider" {
   for_each = var.sites
-  content = templatefile("templates/00_infra/provider.tftpl", { SITE = each.key })
-  filename = "../${each.key}/00_infra/provider.tf"
+  content  = templatefile("templates/00_infra/provider.tftpl", { SITE = each.key })
+  filename = "../sites/${each.key}/00_infra/provider.tf"
 }
 
 resource "local_file" "infra_variables" {
   for_each = var.sites
-  content = templatefile("templates/00_infra/variables.tftpl", { SITE = each.key, CLUSTER_TEMPLATE_ID = openstack_containerinfra_clustertemplate_v1.clustertemplate[var.default_k8s_template].id })
-  filename = "../${each.key}/00_infra/variables.tf"
+  content  = templatefile("templates/00_infra/variables.tftpl", { SITE = each.key, CLUSTER_TEMPLATE = openstack_containerinfra_clustertemplate_v1.clustertemplate[var.default_k8s_template].name })
+  filename = "../sites/${each.key}/00_infra/variables.tf"
 }
 
 resource "local_file" "infra_networks" {
   for_each = var.sites
-  content = templatefile("templates/00_infra/networks.tftpl", { SITE = each.key, SAFE_SITE = replace(each.key, ".", "_")})
-  filename = "../${each.key}/00_infra/networks.tf"
+  content  = templatefile("templates/00_infra/networks.tftpl", { SITE = each.key, SAFE_SITE = replace(each.key, ".", "_") })
+  filename = "../sites/${each.key}/00_infra/networks.tf"
 }
 
 resource "local_file" "infra_outputs" {
   for_each = var.sites
-  content = file("templates/00_infra/outputs.tftpl")
-  filename = "../${each.key}/00_infra/outputs.tf"
+  content  = file("templates/00_infra/outputs.tftpl")
+  filename = "../sites/${each.key}/00_infra/outputs.tf"
 }
 
 resource "local_file" "infra_kubeconfig" {
   for_each = var.sites
-  content = file("templates/00_infra/kubeconfig.tftpl")
-  filename = "../${each.key}/00_infra/kubeconfig.tf"
+  content  = file("templates/00_infra/kubeconfig.tftpl")
+  filename = "../sites/${each.key}/00_infra/kubeconfig.tf"
 }
 
 
@@ -62,26 +62,20 @@ resource "local_file" "infra_kubeconfig" {
 
 resource "local_file" "infra_config_storage_classes" {
   for_each = var.sites
-  content = templatefile("templates/10_infra_config/storage_classes.tftpl", { SITE = each.key })
-  filename = "../${each.key}/10_infra_config/storage_classes.tf"
+  content  = templatefile("templates/10_infra_config/storage_classes.tftpl", { SITE = each.key })
+  filename = "../sites/${each.key}/10_infra_config/storage_classes.tf"
 }
-
-# resource "local_file" "infra_config_volume_types" {
-#   for_each = var.sites
-#   content = templatefile("templates/10_infra_config/volume_types.tftpl", { SITE = each.key, CLUSTER_TEMPLATE_ID = openstack_containerinfra_clustertemplate_v1.clustertemplate.id })
-#   filename = "../${each.key}/10_infra_config/volume_types.tf"
-# }
 
 resource "local_file" "infra_config_provider" {
   for_each = var.sites
-  content = templatefile("templates/10_infra_config/provider.tftpl", { SITE = each.key })
-  filename = "../${each.key}/10_infra_config/provider.tf"
+  content  = file("templates/10_infra_config/provider.tftpl")
+  filename = "../sites/${each.key}/10_infra_config/provider.tf"
 }
 
 resource "local_file" "infra_config_variables" {
   for_each = var.sites
-  content = templatefile("templates/10_infra_config/variables.tftpl", { SITE = each.key, CLUSTER_TEMPLATE_ID = openstack_containerinfra_clustertemplate_v1.clustertemplate[var.default_k8s_template].id })
-  filename = "../${each.key}/10_infra_config/variables.tf"
+  content  = templatefile("templates/10_infra_config/variables.tftpl", { SITE = each.key, CLUSTER_TEMPLATE = openstack_containerinfra_clustertemplate_v1.clustertemplate[var.default_k8s_template].name })
+  filename = "../sites/${each.key}/10_infra_config/variables.tf"
 }
 
 
@@ -93,32 +87,32 @@ resource "local_file" "infra_config_variables" {
 
 resource "local_file" "app_deploy_jenkins" {
   for_each = var.sites
-  content = templatefile("templates/40_app_deploy/jenkins.tftpl", { SITE = each.key })
-  filename = "../${each.key}/40_app_deploy/jenkins.tf"
+  content  = templatefile("templates/40_app_deploy/jenkins.tftpl", { SITE = each.key })
+  filename = "../sites/${each.key}/40_app_deploy/jenkins.tf"
 }
 
 resource "local_file" "app_deploy_istio" {
   for_each = var.sites
-  content = templatefile("templates/40_app_deploy/istio.tftpl", { SITE = each.key })
-  filename = "../${each.key}/40_app_deploy/istio.tf"
+  content  = templatefile("templates/40_app_deploy/istio.tftpl", { SITE = each.key })
+  filename = "../sites/${each.key}/40_app_deploy/istio.tf"
 }
 
 resource "local_file" "app_deploy_provider" {
   for_each = var.sites
-  content = file("templates/40_app_deploy/provider.tftpl")
-  filename = "../${each.key}/40_app_deploy/provider.tf"
+  content  = file("templates/40_app_deploy/provider.tftpl")
+  filename = "../sites/${each.key}/40_app_deploy/provider.tf"
 }
 
 resource "local_file" "app_deploy_outputs" {
   for_each = var.sites
-  content = file("templates/40_app_deploy/outputs.tftpl")
-  filename = "../${each.key}/40_app_deploy/outputs.tf"
+  content  = file("templates/40_app_deploy/outputs.tftpl")
+  filename = "../sites/${each.key}/40_app_deploy/outputs.tf"
 }
 
 resource "local_file" "app_deploy_variables" {
   for_each = var.sites
-  content = templatefile("templates/40_app_deploy/variables.tftpl", { SITE = each.key })
-  filename = "../${each.key}/40_app_deploy/variables.tf"
+  content  = templatefile("templates/40_app_deploy/variables.tftpl", { SITE = each.key })
+  filename = "../sites/${each.key}/40_app_deploy/variables.tf"
 }
 
 
@@ -127,12 +121,12 @@ resource "local_file" "app_deploy_variables" {
 
 resource "local_file" "app_config_jenkins_haproxy_fragment" {
   for_each = var.sites
-  content = file("templates/45_app_config_jenkins/haproxy.cfg.fragment")
-  filename = "../${each.key}/45_app_config_jenkins/haproxy.cfg.fragment"
+  content  = file("templates/45_app_config_jenkins/haproxy.cfg.fragment")
+  filename = "../sites/${each.key}/45_app_config_jenkins/haproxy.cfg.fragment"
 }
 
 resource "local_file" "app_config_jenkins_haproxy_setup" {
   for_each = var.sites
-  content = file("templates/45_app_config_jenkins/setup_haproxy.sh")
-  filename = "../${each.key}/45_app_config_jenkins/setup_haproxy.sh"
+  content  = file("templates/45_app_config_jenkins/setup_haproxy.sh")
+  filename = "../sites/${each.key}/45_app_config_jenkins/setup_haproxy.sh"
 }
