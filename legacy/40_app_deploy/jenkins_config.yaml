@@ -1,0 +1,117 @@
+# persistence
+#   existingClaim: kubernetes_persistent_volume_claim.jenkins-home-pvc.metadata[0].name
+podSecurityContextOverride:
+  runAsUser: 1000
+  fsGroup: 1000
+  fsGroupChangePolicy: "OnRootMismatch"
+  supplementalGroups: 1000
+controller:
+  adminUsername: "admin" # username for jenkins
+  admin:
+    password: "admin" # password for jenkins
+  # installPlugins:
+  #   - someplugin
+  additionalPlugins:
+    # - kubernetes
+    # - git
+    # - configuration-as-code
+    - job-dsl
+  # ingress:
+  #   enabled: true
+  #   paths: []
+  #   apiVersion: "extensions/v1beta1"
+  #   hostname: "jenkins.example.com"
+  JCasC:
+    defaultConfig: true
+    configScripts:
+      welcome-message: |
+        jenkins:
+          systemMessage: Jenkins-Helm!
+      job-config: |
+        jobs:
+          - script: >
+              folder('jcasc')
+          - script: >
+              pipelineJob('jcasc/default-agent') {
+                definition {
+                  cps {
+                    script("""\
+                    pipeline {
+                      agent {
+                        kubernetes {
+                          yaml '''
+                            apiVersion: v1
+                            kind: Pod
+                            metadata:
+                              labels:
+                                purpose: k8s-pod-as-a-jenkins-agent
+                            spec:
+                              containers:
+                              - name: busybox
+                                image: busybox
+                                command:
+                                - cat
+                                tty: true
+                                resources:
+                                  requests:
+                                    memory: "256mi"
+                                    cpu: "100m"
+                            '''
+                        }
+                      }
+                      stages {
+                        stage('run busybox') {
+                          steps {
+                            container('busybox') {
+                              sh '/bin/busybox'
+                            }
+                          }
+                        }
+                      }
+                    }
+                    """.stripIndent())
+                    sandbox()
+                  }
+                }
+              }
+  serviceType: LoadBalancer
+  unclassified:
+    location:
+      url: "http://mv2112.tplinkdns.com:8080/"
+  clouds:
+  - kubernetes:
+      containerCap: 10
+      containerCapStr: "10"
+      jenkinsTunnel: "jenkins-agent.builder-system.svc.cluster.local:50000"
+      jenkinsUrl: "http://jenkins.builder-system.svc.cluster.local:8080"
+      name: "kubernetes"
+      namespace: "builder-system"
+      podLabels:
+      - key: "jenkins/jenkins-jenkins-agent"
+        value: "true"
+      serverCertificate: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM4RENDQWRpZ0F3SUJBZ0lRSkJlRVZzTnpTbE9UQnlrOFlrcW9kakFOQmdrcWhraUc5dzBCQVFzRkFEQWcKTVI0d0hBWURWUVFEREJWaWRXbHNaR1Z5TFdOc2RYTjBaWEl0WlhwMk9Ha3dIaGNOTWpVd01qRTRNRGd5T1RNegpXaGNOTXpBd01qRTRNRGd5T1RNeldqQWdNUjR3SEFZRFZRUUREQlZpZFdsc1pHVnlMV05zZFhOMFpYSXRaWHAyCk9Ha3dnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDODdYZC9XTDFMNHl6L1dFczMKWVowdFpEbTNBQXdBalJncWlwOVBVZSs5cFJvL2pnQldQRjJHMWx0Q3pacUI0Z1dvbjlMY1owanlKSFF3Ulh0RwpMMTBqcmV0TTlQZ3U3VHdQU0VEL0ZYNFZ5WWJydFkrZkpUdXJXa2k0TTBkWVZodlQ5ZmxpaDYzVFhpSVlkOUdpCjl0ODg5WXI3ZTRKREVPdUJrNkVPazc3ZDRiYVErMjNBNjgzalVENHJqYlZPcWxVV3B2N243M05ReUNYQXdDSHoKU1NtOFJBa0o3MTdwVVFGbUxlMmRkRGEreEppanJCTG9zVGNMOWJtaDFvVlBxTHZhZWFqeWpPUFcxL3NOcVc1VApQb2ptZCtZaHRFTXZJbUVEUU5lL0hBRUFJUkJxQWxiV3pZNnl1bjZYSlJiMmZtOThnTEdscnlIY25PMmw4QzdrCnlOenRBZ01CQUFHakpqQWtNQklHQTFVZEV3RUIvd1FJTUFZQkFmOENBUUF3RGdZRFZSMFBBUUgvQkFRREFnSUUKTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFDanhBK21BM1N5V3FTTFhRLzFLcjhRS2RQenQxRmhKUHhoZnQ3NAp6SWkzQVZEUlhoVVduT2lpcjhVYlpQUG9vMGlyTmFYY0pnejYrMGlaenJHU21za21YYjg3cU94VjlXMk03aVpHCmxMSlIwcW5QVU0xNXY3YXZCTTVxOXI5TFdmTWwxaHp6dFVuTGpmQVdBaTNTYlVwV0gyQnZtVUNXTXVsc1k1ckkKWGs4b2ZBSllhbU5qb1pPRmlmWDNNbVBBM09yMjdaWVAvNWFoaHMwTG1MWDFYL1JOOEg1TjRIcXBVOElONy9OSwovUVhDKy9ub2tVclJsMWJjYmJyUWNlMytuWXdwNkRtMTdIMGF6N203NVEwZTZnQzFYMEtvRkpXb2MzdXExUUJoCmd0cG5LZ25QTENMeTU3RzBBckNkVURqNzBCaDgreVJRdHlNU3Y3Y1F0ZHJLMkcyYgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0t"
+      serverUrl: "https://kubernetes.default"
+      templates:
+      - containers:
+        - args: "^${computer.jnlpmac} ^${computer.name}"
+          envVars:
+          - envVar:
+              key: "JENKINS_URL"
+              value: "http://jenkins.builder-system.svc.cluster.local:8080/"
+          image: "jenkins/inbound-agent:3283.v92c105e0f819-9"
+          name: "jnlp"
+          resourceLimitCpu: "512m"
+          resourceLimitMemory: "512Mi"
+          resourceRequestCpu: "512m"
+          resourceRequestMemory: "512Mi"
+          workingDir: "/home/jenkins/agent"
+        id: "0f44a80b3bf6b147376c079267d2b9f80580ee043443af3e27fb0dea3b1e2ab1"
+        label: "jenkins-jenkins-agent"
+        name: "default"
+        namespace: "builder-system"
+        nodeUsageMode: NORMAL
+        podRetention: "never"
+        serviceAccount: "default"
+        slaveConnectTimeout: 100
+        slaveConnectTimeoutStr: "100"
+        yamlMergeStrategy: "override"

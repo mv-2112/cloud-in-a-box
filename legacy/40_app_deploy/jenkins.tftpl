@@ -11,56 +11,10 @@ resource "helm_release" "jenkins" {
   namespace  = "builder-system"
   create_namespace = true
 
-
-  # set {
-  #   name  = "controller.ingress.enabled"
-  #   value = "true"
-  # }
-
-  # set {
-  #   name  = "controller.ingress.paths"
-  #   value = "[]"
-  # }
-
-  # set {
-  #   name  = "controller.ingress.apiVersion"
-  #   value = "extensions/v1beta1"
-  # }
-
-  # set {
-  #   name  = "controller.ingress.hostName"
-  #   value = "jenkins.example.com"
-  # }
-
-  # set {
-  #   name  = "persistence.existingClaim"
-  #   value = kubernetes_persistent_volume_claim.jenkins-home-pvc.metadata[0].name
-  # }
-
-  set {
-    name = "controller.serviceType"
-    value = "LoadBalancer"
-  }
-
-  set {
-    name  = "podSecurityContextOverride.runAsUser"
-    value = 1000
-  }
-
-  set {
-    name  = "podSecurityContextOverride.fsGroup"
-    value = 1000
-  }
-
-  set {
-    name  = "podSecurityContextOverride.fsGroupChangePolicy"
-    value = "OnRootMismatch"
-  }
-
-  set {
-    name  = "podSecurityContextOverride.supplementalGroups"
-    value = 1000
-  }
+  # Specify the values file for customizing the Helm chart deployment
+  values = [
+    file("jenkins_config.yaml"),                             # Path to the values file containing configuration settings
+  ]
 
 }
 

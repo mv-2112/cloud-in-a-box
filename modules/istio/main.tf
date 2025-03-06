@@ -1,5 +1,5 @@
 locals {
-  istio_charts_url   = "https://istio-release.storage.googleapis.com/charts"
+  istio_charts_url = "https://istio-release.storage.googleapis.com/charts"
 }
 
 resource "kubernetes_namespace" "istio-system" {
@@ -26,7 +26,7 @@ resource "helm_release" "istio-base" {
   depends_on       = [kubernetes_namespace.istio-system]
 
   set {
-    name = "cni.enabled"
+    name  = "cni.enabled"
     value = "true"
   }
 }

@@ -3,6 +3,7 @@ sudo snap remove --purge openstack
 sudo snap remove --purge openstack-hypervisor
 sudo snap remove --purge microceph
 sudo snap remove --purge k8s 
+sudo snap remove --purge cinder-volume
 sudo /usr/sbin/remove-juju-services
 sudo rm -rf /var/lib/juju
 rm -rf ~/.local/share/juju
@@ -13,6 +14,7 @@ rm -rf ~/snap/microstack/
 rm -rf ~/snap/juju/
 rm -rf ~/snap/k8s/
 
+for each in $(lxc list -c n -f csv); do lxc stop $each; lxc delete $each; done
 
 sudo wipefs -af /dev/sda
 sudo wipefs -af /dev/sdb

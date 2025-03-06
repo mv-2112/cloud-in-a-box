@@ -27,12 +27,3 @@ data "openstack_identity_role_v3" "manager" {
 data "openstack_identity_role_v3" "admin" {
   name = "admin"
 }
-
-
-
-# resource "null_resource" "domain_dirs" {
-#   for_each = var.sites
-#   provisioner "local-exec" {
-#     command = "mkdir ../${each.key}"
-#   }
-# }
