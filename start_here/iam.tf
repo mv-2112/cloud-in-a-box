@@ -92,7 +92,6 @@ resource "openstack_identity_inherit_role_assignment_v3" "builder_domain_manager
 
 
 
-
 # # builder group assignment to builder project
 # resource "openstack_identity_inherit_role_assignment_v3" "builder_project_role_assignment" {
 #   for_each   = var.sites

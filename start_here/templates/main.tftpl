@@ -1,4 +1,7 @@
 module "builder-infra" {
   source  = "../../modules/builder_infra"
   domain  = "$${var.domain}"
+  enable_istio = true
+  enable_jenkins = true
+  k8s_template = "$${var.cluster_template}"
 }

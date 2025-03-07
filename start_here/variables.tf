@@ -20,7 +20,7 @@ variable "sites" {
 
 # Create our templates...
 #
-#  Rancher versions here: https://github.com/rancher/hyperkube/releases?page=1
+#  Rancher versions here: https://hub.docker.com/r/rancher/hyperkube/tags
 #
 #  Labels documented here https://docs.openstack.org/magnum/latest/user/#cluster-drivers
 #  https://github.com/kubernetes/k8s.io/blob/main/registry.k8s.io/images/k8s-staging-provider-os/images.yaml
@@ -112,6 +112,22 @@ variable "k8s_templates" {
       magnum_auto_healer_tag         = "v1.31.2"
       octavia_ingress_controller_tag = "v1.31.2"
       calico_tag                     = "v3.28.3"
+      octavia_provider               = "ovn"
+      octavia_lb_algorithm           = "SOURCE_IP_PORT"
+      # Added to hopefully keep LB's live - may still not solve no traffic issue...
+      octavia_lb_healthcheck = false
+    }
+    "v1.32.2-rancher1" = {
+      core_os_image                  = "38.20230806.3.0"
+      container_runtime              = "containerd"
+      containerd_version             = "1.7.25"
+      containerd_tarball_sha256      = "6b987a57a3f2257ca2cc5f4697b481eec917bd2085299aeab0547d388ff8b983"
+      cloud_provider_tag             = "v1.32.0"
+      cinder_csi_plugin_tag          = "v1.32.0"
+      k8s_keystone_auth_tag          = "v1.32.0"
+      magnum_auto_healer_tag         = "v1.32.0"
+      octavia_ingress_controller_tag = "v1.32.0"
+      calico_tag                     = "v3.29.2"
       octavia_provider               = "ovn"
       octavia_lb_algorithm           = "SOURCE_IP_PORT"
       # Added to hopefully keep LB's live - may still not solve no traffic issue...

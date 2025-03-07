@@ -11,7 +11,7 @@ variable "dns_servers" {
   default = ["8.8.8.8", "8.8.4.4"]
 }
 
-variable "default_k8s_template" {
+variable "k8s_template" {
   type    = string
   default = "v1.27.8-rancher2"
 }

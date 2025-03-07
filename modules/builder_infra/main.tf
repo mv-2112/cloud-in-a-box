@@ -3,7 +3,7 @@ data "openstack_networking_network_v2" "external_network" {
 }
 
 data "openstack_containerinfra_clustertemplate_v1" "cluster_template" {
-  name = "generic-k8s-${var.default_k8s_template}-calico-template"
+  name = var.k8s_template
 }
 
 locals {
@@ -58,6 +58,8 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
   # create_timeout      = 1440
   # added as when creating with terraform gets ignored from template
   # floating_ip_enabled = true
+
+
 }
 
 # resource "kubernetes_namespace" "istio-system" {
@@ -101,7 +103,7 @@ module "storage-classes" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1 ]
+  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
 }
 
 
@@ -116,7 +118,7 @@ module "builder-istio" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1 ]
+  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
 }
 
 module "builder-jenkins" {
@@ -129,7 +131,7 @@ module "builder-jenkins" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1 ]
+  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
 }
 
 
