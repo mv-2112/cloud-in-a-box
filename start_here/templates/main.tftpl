@@ -3,5 +3,6 @@ module "builder-infra" {
   domain  = "$${var.domain}"
   enable_istio = true
   enable_jenkins = true
+  enable_ip_masq = true
   k8s_template = "$${var.cluster_template}"
 }

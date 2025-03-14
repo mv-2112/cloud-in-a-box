@@ -31,3 +31,8 @@ variable "enable_istio" {
   type    = bool
   default = true
 }
+
+variable "enable_ip_masq" {
+  type    = bool
+  default = true
+}
