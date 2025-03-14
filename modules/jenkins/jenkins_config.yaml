@@ -1,8 +1,5 @@
 # persistence
 #   existingClaim: kubernetes_persistent_volume_claim.jenkins-home-pvc.metadata[0].name
-persistence:
-  storageClass: "multiattach"
-  accessMode: "ReadWriteMany"
 podSecurityContextOverride:
   runAsUser: 1000
   fsGroup: 1000
