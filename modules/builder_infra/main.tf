@@ -72,39 +72,8 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
 
 }
 
-# resource "kubernetes_namespace" "istio-system" {
-#   metadata {
-#     # annotations = {
-#     #   name = "istio-system"
-#     # }
 
-#     # labels = {
-#     #   mylabel = "istio-system"
-#     # }
-
-#     name = "istio-system"
-#   }
-# }
-
-# resource "kubernetes_storage_class" "csi-sc-cinder" {
-#   metadata {
-#     name = "standard"
-#     annotations = {
-#       "storageclass.kubernetes.io/is-default-class" = "true"
-#     }
-#   }
-#   storage_provisioner = "cinder.csi.openstack.org"
-#   reclaim_policy      = "Delete"
-#   parameters = {
-#     type         = "standard"
-#     availability = "nova"
-#   }
-#   # mount_options = ["file_mode=0700", "dir_mode=0777", "mfsymlinks", "uid=1000", "gid=1000", "nobrl", "cache=none"]
-#   allow_volume_expansion = true
-#   volume_binding_mode    = "Immediate"
-#   depends_on             = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
-# }
-
+# Todo: create the depends_on based on whats enabled... e.g jenkins should wait for istio if its enabled, but carry on if not.
 
 module "storage-classes" {
   source        = "../storage-classes"
@@ -120,9 +89,7 @@ module "storage-classes" {
 module "builder-istio" {
   count         = (var.enable_istio) ? 1 : 0
   source        = "../istio"
-  k8s_cluster   = openstack_containerinfra_cluster_v1.cluster_1.name
   istio_version = "1.23.4"
-  # domain  = "example.com"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
@@ -141,7 +108,7 @@ module "builder-jenkins" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
+  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.builder-istio ]
 }
 
 
@@ -151,6 +118,18 @@ module "builder-ip-masq" {
   k8s_cluster   = openstack_containerinfra_cluster_v1.cluster_1.name
   # domain  = "example.com"
   providers = {
+    kubernetes = kubernetes.kubernetes_config
+  }
+
+  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
+}
+
+
+module "harness" {
+  count         = (var.enable_harness) ? 1 : 0
+  source        = "../harness"
+  providers = {
+    helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
   }
 

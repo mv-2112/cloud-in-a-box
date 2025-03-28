@@ -4,6 +4,7 @@ sudo snap remove --purge openstack-hypervisor
 sudo snap remove --purge microceph
 sudo snap remove --purge k8s 
 sudo snap remove --purge cinder-volume
+sudo snap remove --purge lxd
 sudo /usr/sbin/remove-juju-services
 sudo rm -rf /var/lib/juju
 rm -rf ~/.local/share/juju

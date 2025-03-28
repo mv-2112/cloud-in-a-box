@@ -27,3 +27,7 @@ data "openstack_identity_role_v3" "manager" {
 data "openstack_identity_role_v3" "admin" {
   name = "admin"
 }
+
+data "openstack_identity_role_v3" "load-balancer_member" {
+  name = "load-balancer_member"
+}

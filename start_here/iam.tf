@@ -56,6 +56,15 @@ resource "openstack_identity_inherit_role_assignment_v3" "builder_domain_admin_r
   domain_id = openstack_identity_project_v3.domain[each.key].id
 }
 
+# builder load-balancer_member assignment to domain
+resource "openstack_identity_inherit_role_assignment_v3" "builder_domain_load-balancer_member_role_assignment" {
+  for_each = var.sites
+  group_id = openstack_identity_group_v3.domain_admin_group[each.key].id
+  # project_id = openstack_identity_project_v3.builder[each.key].id
+  role_id   = data.openstack_identity_role_v3.load-balancer_member.id
+  domain_id = openstack_identity_project_v3.domain[each.key].id
+}
+
 
 
 

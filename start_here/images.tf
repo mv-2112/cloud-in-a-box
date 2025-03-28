@@ -9,5 +9,7 @@ resource "openstack_images_image_v2" "fedora_coreos" {
 
   properties = {
     os_distro = "fedora-coreos"
+    architecture    = "x86_64"
+    hypervisor_type = "qemu"
   }
 }

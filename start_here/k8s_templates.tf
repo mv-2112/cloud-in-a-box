@@ -16,6 +16,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_flannel"
   tls_disabled          = false
   public                = true
   registry_enabled      = false
+  insecure_registry     = false
   external_network_id   = data.openstack_networking_network_v2.external_network.name
 
   #  Labels documented here https://docs.openstack.org/magnum/latest/user/#cluster-drivers
@@ -24,21 +25,21 @@ resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_flannel"
 
   labels = {
 
-    kube_tag                       = each.key
-    container_runtime              = each.value.container_runtime
-    containerd_version             = each.value.containerd_version
-    containerd_tarball_sha256      = each.value.containerd_tarball_sha256
+    kube_tag                  = each.key
+    container_runtime         = each.value.container_runtime
+    containerd_version        = each.value.containerd_version
+    containerd_tarball_sha256 = each.value.containerd_tarball_sha256
     # use_podman=true
-    cinder_csi_enabled=true
-    keystone_auth_enabled=true
+    cinder_csi_enabled             = true
+    keystone_auth_enabled          = true
     cloud_provider_tag             = each.value.cloud_provider_tag
     cinder_csi_plugin_tag          = each.value.cinder_csi_plugin_tag
     k8s_keystone_auth_tag          = each.value.k8s_keystone_auth_tag
     magnum_auto_healer_tag         = each.value.magnum_auto_healer_tag
     octavia_ingress_controller_tag = each.value.octavia_ingress_controller_tag
     # calico_tag                     = each.value.calico_tag
-    octavia_provider               = each.value.octavia_provider
-    octavia_lb_algorithm           = each.value.octavia_lb_algorithm
+    octavia_provider     = each.value.octavia_provider
+    octavia_lb_algorithm = each.value.octavia_lb_algorithm
     # Added to hopefully keep LB's live - may still not solve no traffic issue...
     octavia_lb_healthcheck = each.value.octavia_lb_healthcheck
 
@@ -64,7 +65,9 @@ resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_calico" 
   tls_disabled          = false
   public                = true
   registry_enabled      = false
+  insecure_registry     = false
   external_network_id   = data.openstack_networking_network_v2.external_network.name
+
 
   #  Labels documented here https://docs.openstack.org/magnum/latest/user/#cluster-drivers
   #  https://github.com/kubernetes/k8s.io/blob/main/registry.k8s.io/images/k8s-staging-provider-os/images.yaml
@@ -72,13 +75,13 @@ resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_calico" 
 
   labels = {
 
-    kube_tag                       = each.key
-    container_runtime              = each.value.container_runtime
-    containerd_version             = each.value.containerd_version
-    containerd_tarball_sha256      = each.value.containerd_tarball_sha256
+    kube_tag                  = each.key
+    container_runtime         = each.value.container_runtime
+    containerd_version        = each.value.containerd_version
+    containerd_tarball_sha256 = each.value.containerd_tarball_sha256
     # use_podman=true
-    cinder_csi_enabled=true
-    keystone_auth_enabled=true
+    cinder_csi_enabled             = true
+    keystone_auth_enabled          = true
     cloud_provider_tag             = each.value.cloud_provider_tag
     cinder_csi_plugin_tag          = each.value.cinder_csi_plugin_tag
     k8s_keystone_auth_tag          = each.value.k8s_keystone_auth_tag

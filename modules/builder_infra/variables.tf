@@ -36,3 +36,8 @@ variable "enable_ip_masq" {
   type    = bool
   default = true
 }
+
+variable "enable_harness" {
+  type    = bool
+  default = true
+}
