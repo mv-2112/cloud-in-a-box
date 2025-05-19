@@ -5,6 +5,8 @@ sudo snap remove --purge microceph
 sudo snap remove --purge k8s 
 sudo snap remove --purge cinder-volume
 sudo snap remove --purge lxd
+sudo snap remove --purge kubectl
+
 sudo /usr/sbin/remove-juju-services
 sudo rm -rf /var/lib/juju
 rm -rf ~/.local/share/juju
@@ -14,6 +16,8 @@ rm -rf ~/snap/openstack-hypervisor
 rm -rf ~/snap/microstack/
 rm -rf ~/snap/juju/
 rm -rf ~/snap/k8s/
+rm -rf /run/containerd
+
 
 for each in $(lxc list -c n -f csv); do lxc stop $each; lxc delete $each; done
 

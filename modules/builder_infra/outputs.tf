@@ -23,6 +23,16 @@ resource "local_sensitive_file" "builder_k8s_config" {
   file_permission = "0600"
 }
 
+resource "local_sensitive_file" "env_file" {
+  filename        = "${path.cwd}/setup_env.sh"
+  content = <<EOT
+export KUBECONFIG=${local_sensitive_file.builder_k8s_config.filename}
+. ./builder_openrc
+alias buildssh="ssh -i ${local_sensitive_file.output-ssh-key.filename}"
+EOT
+  file_permission = "0600"
+}
+
 output "ssh_message" {
   value = "Your ssh key to access your builder machines via ssh is contained in builder.ssh. Usage: ssh -i ${local_sensitive_file.output-ssh-key.filename} <user>@<host>"
 }

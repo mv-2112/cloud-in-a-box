@@ -65,6 +65,14 @@ resource "openstack_identity_inherit_role_assignment_v3" "builder_domain_load-ba
   domain_id = openstack_identity_project_v3.domain[each.key].id
 }
 
+# builder heat_stack_user assignment to domain
+resource "openstack_identity_inherit_role_assignment_v3" "builder_domain_heat_stack_user_role_assignment" {
+  for_each = var.sites
+  group_id = openstack_identity_group_v3.domain_admin_group[each.key].id
+  # project_id = openstack_identity_project_v3.builder[each.key].id
+  role_id   = data.openstack_identity_role_v3.heat_stack_user.id
+  domain_id = openstack_identity_project_v3.domain[each.key].id
+}
 
 
 

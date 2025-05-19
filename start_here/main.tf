@@ -31,3 +31,7 @@ data "openstack_identity_role_v3" "admin" {
 data "openstack_identity_role_v3" "load-balancer_member" {
   name = "load-balancer_member"
 }
+
+data "openstack_identity_role_v3" "heat_stack_user" {
+  name = "heat_stack_user"
+}

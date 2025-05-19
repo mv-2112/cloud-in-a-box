@@ -43,7 +43,7 @@ resource "openstack_networking_subnet_v2" "subnet2" {
   cidr            = "192.168.2.0/24"
   ip_version      = 4
   dns_nameservers = var.dns_servers
-  
+
 }
 
 resource "openstack_networking_router_v2" "router_1" {
@@ -76,13 +76,13 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
 # Todo: create the depends_on based on whats enabled... e.g jenkins should wait for istio if its enabled, but carry on if not.
 
 module "storage-classes" {
-  source        = "../storage-classes"
-  k8s_cluster   = openstack_containerinfra_cluster_v1.cluster_1.name
+  source      = "../storage-classes"
+  k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
   providers = {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
 
@@ -95,45 +95,73 @@ module "builder-istio" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
+
 module "builder-jenkins" {
-  count         = (var.enable_istio) ? 1 : 0
-  source        = "../jenkins"
-  k8s_cluster   = openstack_containerinfra_cluster_v1.cluster_1.name
+  count       = (var.enable_istio) ? 1 : 0
+  source      = "../jenkins"
+  k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
   # domain  = "example.com"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.builder-istio ]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.builder-istio]
 }
 
 
 module "builder-ip-masq" {
-  count         = (var.enable_ip_masq) ? 1 : 0
-  source        = "../ip-masq-agent"
-  k8s_cluster   = openstack_containerinfra_cluster_v1.cluster_1.name
+  count       = (var.enable_ip_masq) ? 1 : 0
+  source      = "../ip-masq-agent"
+  k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
   # domain  = "example.com"
   providers = {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
 
 module "harness" {
-  count         = (var.enable_harness) ? 1 : 0
-  source        = "../harness"
+  count  = (var.enable_harness) ? 1 : 0
+  source = "../harness"
+  providers = {
+    helm       = helm.helm_config
+    kubernetes = kubernetes.kubernetes_config
+  }
+  account_id     = var.harness_account_id
+  delegate_token = var.harness_delegate_token
+
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+}
+
+
+module "cert-manager" {
+  count  = (var.enable_cert_manager) ? 1 : 0
+  source = "../cert-manager"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [ openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config ]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
+
+
+module "jaeger" {
+  count  = (var.enable_jaeger) ? 1 : 0
+  source = "../jaeger"
+  providers = {
+    helm       = helm.helm_config
+    kubernetes = kubernetes.kubernetes_config
+  }
+
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.cert-manager]
+}
+
 
 

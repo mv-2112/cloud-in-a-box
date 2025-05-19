@@ -15,7 +15,7 @@ controller:
     # - kubernetes
     # - git
     # - configuration-as-code
-    - job-dsl
+    # - job-dsl
   # ingress:
   #   enabled: true
   #   paths: []
@@ -26,54 +26,54 @@ controller:
     configScripts:
       welcome-message: |
         jenkins:
-          systemMessage: Jenkins-Helm!
-      job-config: |
-        jobs:
-          - script: >
-              folder('jcasc')
-          - script: >
-              pipelineJob('jcasc/default-agent') {
-                definition {
-                  cps {
-                    script("""\
-                    pipeline {
-                      agent {
-                        kubernetes {
-                          yaml '''
-                            apiVersion: v1
-                            kind: Pod
-                            metadata:
-                              labels:
-                                purpose: k8s-pod-as-a-jenkins-agent
-                            spec:
-                              containers:
-                              - name: busybox
-                                image: busybox
-                                command:
-                                - cat
-                                tty: true
-                                resources:
-                                  requests:
-                                    memory: "256mi"
-                                    cpu: "100m"
-                            '''
-                        }
-                      }
-                      stages {
-                        stage('run busybox') {
-                          steps {
-                            container('busybox') {
-                              sh '/bin/busybox'
-                            }
-                          }
-                        }
-                      }
-                    }
-                    """.stripIndent())
-                    sandbox()
-                  }
-                }
-              }
+          systemMessage: Jenkins-Helm!!
+      # job-config: |
+        # jobs:
+        #   - script: >
+        #       folder('jcasc')
+        #   - script: >
+        #       pipelineJob('jcasc/default-agent') {
+        #         definition {
+        #           cps {
+        #             script("""\
+        #             pipeline {
+        #               agent {
+        #                 kubernetes {
+        #                   yaml '''
+        #                     apiVersion: v1
+        #                     kind: Pod
+        #                     metadata:
+        #                       labels:
+        #                         purpose: k8s-pod-as-a-jenkins-agent
+        #                     spec:
+        #                       containers:
+        #                       - name: busybox
+        #                         image: busybox
+        #                         command:
+        #                         - cat
+        #                         tty: true
+        #                         resources:
+        #                           requests:
+        #                             memory: "256mi"
+        #                             cpu: "100m"
+        #                     '''
+        #                 }
+        #               }
+        #               stages {
+        #                 stage('run busybox') {
+        #                   steps {
+        #                     container('busybox') {
+        #                       sh '/bin/busybox'
+        #                     }
+        #                   }
+        #                 }
+        #               }
+        #             }
+        #             """.stripIndent())
+        #             sandbox()
+        #           }
+        #         }
+        #       }
   serviceType: LoadBalancer
   unclassified:
     location:

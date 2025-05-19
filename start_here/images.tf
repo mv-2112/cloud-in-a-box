@@ -8,7 +8,7 @@ resource "openstack_images_image_v2" "fedora_coreos" {
   decompress       = true
 
   properties = {
-    os_distro = "fedora-coreos"
+    os_distro       = "fedora-coreos"
     architecture    = "x86_64"
     hypervisor_type = "qemu"
   }

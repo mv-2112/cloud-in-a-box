@@ -41,3 +41,23 @@ variable "enable_harness" {
   type    = bool
   default = true
 }
+
+variable "harness_account_id" {
+  type    = string
+  # default = "something like 5gdsgGdgfr53W98wB"
+}
+
+variable "harness_delegate_token" {
+  type    = string
+  # default = "something like ER23tE4Rwyq3QQyb546QOWU3OTllODM0MDhmZjY="
+}
+
+variable "enable_cert_manager" {
+  type    = bool
+  default = true
+}
+
+variable "enable_jaeger" {
+  type    = bool
+  default = true
+}
