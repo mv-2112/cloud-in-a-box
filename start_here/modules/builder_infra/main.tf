@@ -95,7 +95,7 @@ module "builder-istio" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.storage-classes]
 }
 
 
@@ -109,7 +109,7 @@ module "builder-jenkins" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.builder-istio]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.storage-classes]
 }
 
 

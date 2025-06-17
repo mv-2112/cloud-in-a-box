@@ -20,14 +20,14 @@ EOF
 
 # Start the modularisation - not fully in use yet
 
-resource "local_file" "main_builder_terraform" {
-  for_each = var.sites
-  content  = templatefile("templates/main.tftpl", { SITE = each.key })
-  filename = "../sites/${each.key}/main.tf"
-}
+# resource "local_file" "main_builder_terraform" {
+#   for_each = var.sites
+#   content  = templatefile("templates/main.tftpl", { SITE = each.key })
+#   filename = "../sites/${each.key}/main.tf"
+# }
 
-resource "local_file" "main_variables" {
-  for_each = var.sites
-  content  = templatefile("templates/variables.tftpl", { SITE = each.key, SAFE_SITE = replace(each.key, ".", "_"), CLUSTER_TEMPLATE = openstack_containerinfra_clustertemplate_v1.clustertemplate_flannel[var.default_k8s_template].name })
-  filename = "../sites/${each.key}/variables.tf"
-}
+# resource "local_file" "main_variables" {
+#   for_each = var.sites
+#   content  = templatefile("templates/variables.tftpl", { SITE = each.key, SAFE_SITE = replace(each.key, ".", "_"), CLUSTER_TEMPLATE = openstack_containerinfra_clustertemplate_v1.clustertemplate_flannel[var.default_k8s_template].name })
+#   filename = "../sites/${each.key}/variables.tf"
+# }

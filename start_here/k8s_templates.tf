@@ -43,7 +43,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_flannel"
     # Added to hopefully keep LB's live - may still not solve no traffic issue...
     octavia_lb_healthcheck = each.value.octavia_lb_healthcheck
     auto_scaling_enabled   = true
-    autoscaler_tag         = "1.27.3"
+    autoscaler_tag         = "v1.27.3"
     auto_healing_enabled   = true
   }
 }

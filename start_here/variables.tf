@@ -1,3 +1,90 @@
+variable "modules" {
+  type = map(object({
+    file_list   = list(string)
+    description = string
+
+  }))
+
+  default = {
+    "backstage" = {
+      description = "Cloud-in-a-box Terraform Module for Backstage"
+      file_list   = []
+
+    }
+    "builder_infra" = {
+      description = "Cloud-in-a-box Terraform Module for Builder Infrastructure"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "outputs.tf",
+        "provider.tf"
+      ]
+    }
+    "cert-manager" = {
+      description = "Cloud-in-a-box Terraform Module for Cert Manager"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "outputs.tf",
+        "providers.tf"
+      ]
+    }
+    "harness" = {
+      description = "Cloud-in-a-box Terraform Module for Harness"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "providers.tf"
+      ]
+    }
+    "ip-masq-agent" = {
+      description = "Cloud-in-a-box Terraform Module for IP Masq Agent"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "outputs.tf",
+        "providers.tf"
+      ]
+    }
+    "istio" = {
+      description = "Cloud-in-a-box Terraform Module for Istio"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "outputs.tf",
+        "providers.tf"
+      ]
+    }
+    "jaeger" = {
+      description = "Cloud-in-a-box Terraform Module for Jaeger"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "outputs.tf",
+        "providers.tf",
+        "jaeger.yaml"
+      ]
+    }
+    "jenkins" = {
+      description = "Cloud-in-a-box Terraform Module for Jenkins"
+      file_list = [
+        "jenkins.tf",
+        "variables.tf",
+        "providers.tf",
+        "jenkins_config.yaml"
+      ]
+    }
+    "storage-classes" = {
+      description = "Cloud-in-a-box Terraform Module for Storage Classes"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "provider.tf"
+      ]
+    }
+  }
+}
+
 variable "sites" {
   type = map(object({
     owner       = string
@@ -157,3 +244,16 @@ variable "default_k8s_template" {
   type    = string
   default = "v1.31.5-rancher1"
 }
+
+variable "github_token" {
+  type        = string
+  default     = "ghp_???????" # Replace with your actual GitHub token
+  description = "GitHub token for accessing the repository"
+}
+
+variable "github_organization" {
+  type        = string
+  default     = "your_org_here"
+  description = "GitHub organization for the repository"
+}
+
