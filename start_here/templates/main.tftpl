@@ -1,5 +1,5 @@
 module "builder-infra" {
-  source                 = "../../modules/builder_infra"
+  source                 = "${GITHUB_URL}/tf-mod-builder_infra"
   domain                 = "$${var.domain}"
   enable_istio           = true
   enable_jenkins         = true

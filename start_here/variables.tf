@@ -1,23 +1,25 @@
 variable "modules" {
   type = map(object({
-    file_list   = list(string)
-    description = string
-
+    description   = string
+    file_list     = list(string)
+    template_list = list(string)
   }))
 
   default = {
     "backstage" = {
-      description = "Cloud-in-a-box Terraform Module for Backstage"
-      file_list   = []
-
+      description   = "Cloud-in-a-box Terraform Module for Backstage"
+      file_list     = []
+      template_list = []
     }
     "builder_infra" = {
       description = "Cloud-in-a-box Terraform Module for Builder Infrastructure"
       file_list = [
-        "main.tf",
         "variables.tf",
         "outputs.tf",
         "provider.tf"
+      ]
+      template_list = [
+        "main.tftpl"
       ]
     }
     "cert-manager" = {
@@ -28,6 +30,7 @@ variable "modules" {
         "outputs.tf",
         "providers.tf"
       ]
+      template_list = []
     }
     "harness" = {
       description = "Cloud-in-a-box Terraform Module for Harness"
@@ -36,6 +39,7 @@ variable "modules" {
         "variables.tf",
         "providers.tf"
       ]
+      template_list = []
     }
     "ip-masq-agent" = {
       description = "Cloud-in-a-box Terraform Module for IP Masq Agent"
@@ -45,6 +49,7 @@ variable "modules" {
         "outputs.tf",
         "providers.tf"
       ]
+      template_list = []
     }
     "istio" = {
       description = "Cloud-in-a-box Terraform Module for Istio"
@@ -54,6 +59,7 @@ variable "modules" {
         "outputs.tf",
         "providers.tf"
       ]
+      template_list = []
     }
     "jaeger" = {
       description = "Cloud-in-a-box Terraform Module for Jaeger"
@@ -64,6 +70,7 @@ variable "modules" {
         "providers.tf",
         "jaeger.yaml"
       ]
+      template_list = []
     }
     "jenkins" = {
       description = "Cloud-in-a-box Terraform Module for Jenkins"
@@ -73,6 +80,7 @@ variable "modules" {
         "providers.tf",
         "jenkins_config.yaml"
       ]
+      template_list = []
     }
     "storage-classes" = {
       description = "Cloud-in-a-box Terraform Module for Storage Classes"
@@ -81,6 +89,7 @@ variable "modules" {
         "variables.tf",
         "provider.tf"
       ]
+      template_list = []
     }
   }
 }
@@ -89,7 +98,6 @@ variable "sites" {
   type = map(object({
     owner       = string
     description = string
-
   }))
 
   default = {

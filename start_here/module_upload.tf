@@ -36,3 +36,23 @@ resource "github_repository_file" "module_files" {
   overwrite_on_create = true
 }
 
+resource "github_repository_file" "module_tpl_files" {
+  for_each            = { for combination in flatten([
+    for k,v in var.modules: [
+        for template in v.template_list: {
+            key = "${k}-${template}"
+            module = k
+            template = template
+        }
+    ]
+  ]) : combination.key => combination}
+  repository          = github_repository.module_repo[each.value.module].name
+  branch              = "main"
+  file                = replace(each.value.template, ".tftpl", ".tf")
+  # example git@github.com:blackcatengineering/tf-mod-builder_infra.git
+  content             = templatefile("modules/${each.value.module}/${each.value.template}", { GITHUB_URL = "git@github.com:${var.github_organization}" })
+  commit_message      = "Managed by Terraform"
+  commit_author       = "Terraform User"
+  commit_email        = "builder-admin@example.com"
+  overwrite_on_create = true
+}
