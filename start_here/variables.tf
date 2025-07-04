@@ -101,9 +101,9 @@ variable "sites" {
   }))
 
   default = {
-    "example.com" = {
+    "spanglywires.ddns.net" = {
       owner       = "Matt"
-      description = "example.com"
+      description = "spanglywires.ddns.net"
     }
     # "www.example2.com" = {
     #   owner    = "Bob"

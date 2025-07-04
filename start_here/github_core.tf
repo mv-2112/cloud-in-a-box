@@ -22,7 +22,7 @@ resource "github_repository_file" "gitignore" {
   content             = "**/*.tfstate"
   commit_message      = "Managed by Terraform"
   commit_author       = "Terraform User"
-  commit_email        = "builder-admin@example.com"
+  commit_email        = "builder-admin@${each.key}"
   overwrite_on_create = true
 }
 
@@ -37,7 +37,7 @@ resource "github_repository_file" "main_builder_terraform" {
   content             = templatefile("templates/main.tftpl", { SITE = each.key, GITHUB_URL = "git@github.com:${var.github_organization}" })
   commit_message      = "Managed by Terraform"
   commit_author       = "Terraform User"
-  commit_email        = "builder-admin@example.com"
+  commit_email        = "builder-admin@${each.key}"
   overwrite_on_create = true
 }
 
@@ -49,6 +49,6 @@ resource "github_repository_file" "main_variables" {
   content             = templatefile("templates/variables.tftpl", { SITE = each.key, SAFE_SITE = replace(each.key, ".", "_"), CLUSTER_TEMPLATE = openstack_containerinfra_clustertemplate_v1.clustertemplate_flannel[var.default_k8s_template].name, GITHUB_URL = "git@github.com:${var.github_organization}" })
   commit_message      = "Managed by Terraform"
   commit_author       = "Terraform User"
-  commit_email        = "builder-admin@example.com"
+  commit_email        = "builder-admin@${each.key}"
   overwrite_on_create = true
 }

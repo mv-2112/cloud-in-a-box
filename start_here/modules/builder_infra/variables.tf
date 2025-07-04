@@ -11,6 +11,16 @@ variable "dns_servers" {
   default = ["8.8.8.8", "8.8.4.4"]
 }
 
+variable "builder_subnet_cidr" {
+  type    = string
+  default = "10.0.0.0/24"
+}
+
+variable "application_subnet_cidr" {
+  type    = string
+  default = "10.0.100.0/24"
+}
+
 variable "k8s_template" {
   type    = string
   default = "v1.27.8-rancher2"
