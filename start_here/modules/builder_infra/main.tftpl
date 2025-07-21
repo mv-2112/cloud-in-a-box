@@ -62,12 +62,12 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
   cluster_template_id = data.openstack_containerinfra_clustertemplate_v1.cluster_template.id
   master_count        = 1
   node_count          = 1
-  keypair             = openstack_compute_keypair_v2.keypair.id
+  keypair             = openstack_compute_keypair_v2.keypair.name
   # create_timeout      = 1440
   # added as when creating with terraform gets ignored from template
   # floating_ip_enabled = true
-  # fixed_network = openstack_networking_network_v2.network.name
-  # fixed_subnet = openstack_networking_subnet_v2.subnet1.name
+  fixed_network = openstack_networking_network_v2.network.name
+  fixed_subnet = openstack_networking_subnet_v2.subnet1.name
 
 
 }
@@ -143,6 +143,18 @@ module "harness" {
 module "cert-manager" {
   count  = (var.enable_cert_manager) ? 1 : 0
   source = "${GITHUB_URL}/tf-mod-cert-manager"
+  providers = {
+    helm       = helm.helm_config
+    kubernetes = kubernetes.kubernetes_config
+  }
+
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+}
+
+
+module "trust-manager" {
+  count  = (var.enable_trust_manager) ? 1 : 0
+  source = "${GITHUB_URL}/tf-mod-trust-manager"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config

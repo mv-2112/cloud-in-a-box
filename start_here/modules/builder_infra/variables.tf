@@ -13,7 +13,7 @@ variable "dns_servers" {
 
 variable "builder_subnet_cidr" {
   type    = string
-  default = "10.0.0.0/24"
+  default = "10.0.99.0/24"
 }
 
 variable "application_subnet_cidr" {
@@ -63,6 +63,11 @@ variable "harness_delegate_token" {
 }
 
 variable "enable_cert_manager" {
+  type    = bool
+  default = true
+}
+
+variable "enable_trust_manager" {
   type    = bool
   default = true
 }

@@ -32,6 +32,16 @@ variable "modules" {
       ]
       template_list = []
     }
+    "trust-manager" = {
+      description = "Cloud-in-a-box Terraform Module for Trust Manager"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "outputs.tf",
+        "providers.tf"
+      ]
+      template_list = []
+    }
     "harness" = {
       description = "Cloud-in-a-box Terraform Module for Harness"
       file_list = [
