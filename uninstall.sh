@@ -6,6 +6,8 @@ sudo snap remove --purge k8s
 sudo snap remove --purge cinder-volume
 sudo snap remove --purge lxd
 sudo snap remove --purge kubectl
+sudo snap remove --purge epa-orchestrator
+
 
 sudo /usr/sbin/remove-juju-services
 sudo rm -rf /var/lib/juju
