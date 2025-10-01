@@ -1,104 +1,31 @@
-resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_flannel" {
+resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_CAPI" {
   for_each              = var.k8s_templates
-  name                  = "generic-k8s-${each.key}-flannel-template"
-  image                 = openstack_images_image_v2.fedora_coreos[each.value.core_os_image].name
+  name                  = "generic-k8s-${each.key}-template"
+  image                 = "coe-capi-${each.key}"
   coe                   = "kubernetes"
   flavor                = "m1.large"
   master_flavor         = "m1.medium"
-  dns_nameserver        = join(",", [for s in var.dns_servers : format("%s", s)])
+  dns_nameserver        = join(",", [for s in each.value.dns_servers : format("%s", s)])
   docker_storage_driver = "overlay2"
-  docker_volume_size    = 15
-  volume_driver         = "cinder"
-  network_driver        = "flannel"
-  server_type           = "vm"
-  master_lb_enabled     = true
-  floating_ip_enabled   = true
-  tls_disabled          = false
-  public                = true
-  registry_enabled      = false
-  insecure_registry     = false
-  external_network_id   = data.openstack_networking_network_v2.external_network.name
+  network_driver        = "cilium"
+  # server_type           = "vm"
+  master_lb_enabled   = true
+  floating_ip_enabled = true
+  # tls_disabled          = false
+  public              = true
+  registry_enabled    = false
+  insecure_registry   = false
+  external_network_id = data.openstack_networking_network_v2.external_network.name
 
   #  Labels documented here https://docs.openstack.org/magnum/latest/user/#cluster-drivers
   #  https://github.com/kubernetes/k8s.io/blob/main/registry.k8s.io/images/k8s-staging-provider-os/images.yaml
   #  https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/EU/sig-storage for csi-resizer etc
 
   labels = {
-
-    kube_tag                  = each.key
-    container_runtime         = each.value.container_runtime
-    containerd_version        = each.value.containerd_version
-    containerd_tarball_sha256 = each.value.containerd_tarball_sha256
-    # use_podman=true
-    cinder_csi_enabled             = true
-    keystone_auth_enabled          = true
-    cloud_provider_tag             = each.value.cloud_provider_tag
-    cinder_csi_plugin_tag          = each.value.cinder_csi_plugin_tag
-    k8s_keystone_auth_tag          = each.value.k8s_keystone_auth_tag
-    magnum_auto_healer_tag         = each.value.magnum_auto_healer_tag
-    octavia_ingress_controller_tag = each.value.octavia_ingress_controller_tag
-    # calico_tag                     = each.value.calico_tag
-    octavia_provider     = each.value.octavia_provider
-    octavia_lb_algorithm = each.value.octavia_lb_algorithm
-    # Added to hopefully keep LB's live - may still not solve no traffic issue...
-    octavia_lb_healthcheck = each.value.octavia_lb_healthcheck
-    auto_scaling_enabled   = true
-    autoscaler_tag         = "v1.27.3"
-    auto_healing_enabled   = true
+    octavia_provider        = "ovn"
+    # https://github.com/canonical/openstack-capi-k8s-helm-charts/pkgs/container/charts%2Fopenstack-ck8s-cluster
+    capi_helm_chart_version = "0.1.0"
+    keystone_auth_enabled   = true
+    kube_tag                = each.value.kube_tag
   }
 }
-
-
-resource "openstack_containerinfra_clustertemplate_v1" "clustertemplate_calico" {
-  for_each              = var.k8s_templates
-  name                  = "generic-k8s-${each.key}-calico-template"
-  image                 = openstack_images_image_v2.fedora_coreos[each.value.core_os_image].name
-  coe                   = "kubernetes"
-  flavor                = "m1.large"
-  master_flavor         = "m1.medium"
-  dns_nameserver        = join(",", [for s in var.dns_servers : format("%s", s)])
-  docker_storage_driver = "overlay2"
-  docker_volume_size    = 15
-  volume_driver         = "cinder"
-  network_driver        = "calico"
-  server_type           = "vm"
-  master_lb_enabled     = true
-  floating_ip_enabled   = true
-  tls_disabled          = false
-  public                = true
-  registry_enabled      = false
-  insecure_registry     = false
-  external_network_id   = data.openstack_networking_network_v2.external_network.name
-
-
-  #  Labels documented here https://docs.openstack.org/magnum/latest/user/#cluster-drivers
-  #  https://github.com/kubernetes/k8s.io/blob/main/registry.k8s.io/images/k8s-staging-provider-os/images.yaml
-  #  https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/EU/sig-storage for csi-resizer etc
-
-  labels = {
-
-    kube_tag                  = each.key
-    container_runtime         = each.value.container_runtime
-    containerd_version        = each.value.containerd_version
-    containerd_tarball_sha256 = each.value.containerd_tarball_sha256
-    # use_podman=true
-    cinder_csi_enabled             = true
-    keystone_auth_enabled          = true
-    cloud_provider_tag             = each.value.cloud_provider_tag
-    cinder_csi_plugin_tag          = each.value.cinder_csi_plugin_tag
-    k8s_keystone_auth_tag          = each.value.k8s_keystone_auth_tag
-    magnum_auto_healer_tag         = each.value.magnum_auto_healer_tag
-    octavia_ingress_controller_tag = each.value.octavia_ingress_controller_tag
-    calico_tag                     = each.value.calico_tag
-    octavia_provider               = each.value.octavia_provider
-    octavia_lb_algorithm           = each.value.octavia_lb_algorithm
-    # Added to hopefully keep LB's live - may still not solve no traffic issue...
-    octavia_lb_healthcheck = each.value.octavia_lb_healthcheck
-    auto_scaling_enabled   = true
-    autoscaler_tag         = "v1.27.3"
-    auto_healing_enabled   = true
-  }
-}
-
-
-

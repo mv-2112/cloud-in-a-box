@@ -46,7 +46,7 @@ resource "github_repository_file" "main_variables" {
   repository          = github_repository.starter_repo[each.key].name
   branch              = "main"
   file                = "variables.tf"
-  content             = templatefile("templates/variables.tftpl", { SITE = each.key, SAFE_SITE = replace(each.key, ".", "_"), CLUSTER_TEMPLATE = openstack_containerinfra_clustertemplate_v1.clustertemplate_flannel[var.default_k8s_template].name, GITHUB_URL = "git@github.com:${var.github_organization}" })
+  content             = templatefile("templates/variables.tftpl", { SITE = each.key, SAFE_SITE = replace(each.key, ".", "_"), CLUSTER_TEMPLATE = openstack_containerinfra_clustertemplate_v1.clustertemplate_CAPI[var.default_k8s_template].name, GITHUB_URL = "git@github.com:${var.github_organization}" })
   commit_message      = "Managed by Terraform"
   commit_author       = "Terraform User"
   commit_email        = "builder-admin@${each.key}"
