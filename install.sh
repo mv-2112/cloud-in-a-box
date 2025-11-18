@@ -1,4 +1,4 @@
-sudo snap install openstack --channel 2024.1/edge
+sudo snap install openstack --channel 2025.1/edge
 
 sunbeam prepare-node-script --bootstrap | bash -x && newgrp snap_daemon
 

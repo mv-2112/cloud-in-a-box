@@ -129,26 +129,16 @@ variable "sites" {
 # Naming is in this style: ubuntu-jammy-kubernetes-1-31-1-1742226216.qcow2 
 variable "k8s_templates" {
   type = map(object({
-    coe_os_image         = string
-    coe_image_source     = string
-    dns_servers          = list(string)
-    kube_tag             = string
-    octavia_provider     = string
-    octavia_lb_algorithm = string
-    # Added to hopefully keep LB's live - may still not solve no traffic issue...
-    octavia_lb_healthcheck = bool
+    coe_os_image        = string
+    dns_servers         = list(string)
+    glance_kube_version = string
   }))
 
   default = {
-    "v1.31.1-capi" = {
-      coe_os_image         = "ubuntu-jammy-kubernetes-1-31-1-1742226216.qcow2"
-      coe_image_source     = "https://static.atmosphere.dev/artifacts/magnum-cluster-api/"
-      dns_servers          = ["8.8.8.8", "8.8.4.4"]
-      kube_tag             = "v1.31.1"
-      octavia_provider     = "ovn"
-      octavia_lb_algorithm = "SOURCE_IP_PORT"
-      # Added to hopefully keep LB's live - may still not solve no traffic issue...
-      octavia_lb_healthcheck = false
+    "v1.32.8" = {
+      coe_os_image        = "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
+      dns_servers         = ["8.8.8.8", "8.8.4.4"]
+      glance_kube_version = "v1.32.8"
     }
   }
 }
@@ -173,5 +163,5 @@ variable "external_network" {
 
 variable "default_k8s_template" {
   type    = string
-  default = "v1.31.1-capi"
+  default = "v1.32.8"
 }

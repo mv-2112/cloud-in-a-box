@@ -5,12 +5,17 @@ sudo snap remove --purge openstack
 sudo snap remove --purge openstack-hypervisor
 
 
+
 # Tidy up Ceph
+sudo microceph cluster maintenance enter mz640 --stop-osds --force
 for each_disk in sda sdb sdc sdd
 do
-  microceph.ceph-bluestore-tool zap-device --dev /dev/$each_disk
-  # sudo dd if=/dev/zero of=/dev/$each_disk bs=1M count=100 status=progress
-  # wipefs -af /dev/$each_disk
+  echo "Zapping $each_disk"
+  sudo microceph.ceph-bluestore-tool zap-device --dev /dev/$each_disk --yes-i-really-really-mean-it
+  echo "dd'ing $each_disk"
+  sudo dd if=/dev/zero of=/dev/$each_disk bs=1M count=100 status=progress
+  echo "Wiping $each_disk"
+  sudo wipefs -af /dev/$each_disk
 done
 sudo snap remove --purge microceph
 

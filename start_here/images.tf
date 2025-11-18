@@ -23,7 +23,7 @@
 resource "openstack_images_image_v2" "magnum_capi_image" {
   for_each         = var.k8s_templates
   name             = "coe-capi-${each.key}"
-  image_source_url = "${each.value.coe_image_source}/${each.value.coe_os_image}"
+  image_source_url = each.value.coe_os_image
   container_format = "bare"
   disk_format      = "qcow2"
   visibility       = "public"
@@ -32,7 +32,6 @@ resource "openstack_images_image_v2" "magnum_capi_image" {
     os_distro       = "ubuntu"
     architecture    = "x86_64"
     hypervisor_type = "qemu"
-    kube_version    = "${each.value.kube_tag}"
-
+    kube_version    = "${each.value.glance_kube_version}"
   }
 }
