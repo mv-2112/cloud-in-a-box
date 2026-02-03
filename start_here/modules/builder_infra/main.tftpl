@@ -107,6 +107,21 @@ module "builder-istio" {
 }
 
 
+module "builder-istio-ambient" {
+  count         = (var.enable_istio_ambient) ? 1 : 0
+  source        = "${GITHUB_URL}/tf-mod-istio-ambient"
+  istio_version = "1.23.4"
+  providers = {
+    helm       = helm.helm_config
+    kubernetes = kubernetes.kubernetes_config
+  }
+
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+
+}
+
+
 module "builder-jenkins" {
   count       = (var.enable_jenkins) ? 1 : 0
   source      = "${GITHUB_URL}/tf-mod-jenkins"
