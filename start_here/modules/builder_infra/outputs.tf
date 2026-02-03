@@ -17,15 +17,15 @@ resource "local_sensitive_file" "output-ssh-key" {
   file_permission = "0600"
 }
 
-resource "local_sensitive_file" "builder_k8s_config" {
-  filename        = "${path.cwd}/config/${openstack_containerinfra_cluster_v1.cluster_1.name}/config"
-  content         = openstack_containerinfra_cluster_v1.cluster_1.kubeconfig.raw_config
-  file_permission = "0600"
+# resource "local_sensitive_file" "builder_k8s_config" {
+#   filename        = "${path.cwd}/config/${openstack_containerinfra_cluster_v1.cluster_1.name}/config"
+#   content         = openstack_containerinfra_cluster_v1.cluster_1.kubeconfig.raw_config
+#   file_permission = "0600"
 
-  lifecycle {
-    ignore_changes = all
-  }
-}
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
 
 resource "local_sensitive_file" "env_file" {
   filename        = "${path.cwd}/setup_env.sh"
@@ -35,6 +35,16 @@ export KUBECONFIG=${local_sensitive_file.builder_k8s_config.filename}
 alias buildssh="ssh -i ${local_sensitive_file.output-ssh-key.filename}"
 EOT
   file_permission = "0600"
+}
+
+resource "local_file" "bodge_magnum_script" {
+  filename = "${path.cwd}/kubeconf_bodge_script.sh"
+  content = <<EOT
+#!/usr/bin/env bash
+sudo k8s config > kubeconfig
+KUBECONFIG=kubeconfig clusterctl get kubeconfig --namespace magnum-${openstack_containerinfra_cluster_v1.cluster_1.project_id} ${openstack_containerinfra_cluster_v1.cluster_1.stack_id} > ${path.cwd}/config/${openstack_containerinfra_cluster_v1.cluster_1.name}/config
+EOT
+  file_permission = "0750"
 }
 
 output "ssh_message" {
@@ -60,3 +70,5 @@ output "path_module" {
 output "path_root" {
   value = path.root
 }
+
+

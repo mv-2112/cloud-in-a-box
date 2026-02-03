@@ -101,7 +101,9 @@ module "builder-istio" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+
 }
 
 
@@ -115,8 +117,10 @@ module "builder-jenkins" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
+
 
 
 module "builder-ip-masq" {
@@ -128,7 +132,8 @@ module "builder-ip-masq" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
 
@@ -142,7 +147,8 @@ module "harness" {
   account_id     = var.harness_account_id
   delegate_token = var.harness_delegate_token
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
 
@@ -154,7 +160,8 @@ module "cert-manager" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
 
@@ -166,7 +173,8 @@ module "trust-manager" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
 
@@ -178,7 +186,8 @@ module "jaeger" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.cert-manager]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.cert-manager]
 }
 
 
