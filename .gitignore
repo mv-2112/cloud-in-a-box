@@ -19,3 +19,4 @@ auth/**
 sites/**
 kubeconfig
 app-demo/clusterctl
+app-demo/kubernetes-sample-apps
