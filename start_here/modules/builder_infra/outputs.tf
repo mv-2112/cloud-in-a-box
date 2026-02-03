@@ -30,7 +30,8 @@ resource "local_sensitive_file" "output-ssh-key" {
 resource "local_sensitive_file" "env_file" {
   filename        = "${path.cwd}/setup_env.sh"
   content = <<EOT
-export KUBECONFIG=${local_sensitive_file.builder_k8s_config.filename}
+# export KUBECONFIG=${local_sensitive_file.builder_k8s_config.filename}
+export KUBECONFIG=${path.cwd}/config/${openstack_containerinfra_cluster_v1.cluster_1.name}/config
 . ./builder_openrc
 alias buildssh="ssh -i ${local_sensitive_file.output-ssh-key.filename}"
 EOT
@@ -52,7 +53,9 @@ output "ssh_message" {
 }
 
 output "k8s_message" {
-  value = "Your Kubernetes cluster ${openstack_containerinfra_cluster_v1.cluster_1.name} has been created, its kubeconfig is at ${local_sensitive_file.builder_k8s_config.filename}."
+  # value = "Your Kubernetes cluster ${openstack_containerinfra_cluster_v1.cluster_1.name} has been created, its kubeconfig is at ${local_sensitive_file.builder_k8s_config.filename}."
+  value = "Your Kubernetes cluster ${openstack_containerinfra_cluster_v1.cluster_1.name} has been created, its kubeconfig is at ${path.cwd}/config/${openstack_containerinfra_cluster_v1.cluster_1.name}/config."
+
 }
 
 output "k8s_cluster_name" {
