@@ -43,6 +43,7 @@ resource "local_file" "bodge_magnum_script" {
   content = <<EOT
 #!/usr/bin/env bash
 sudo k8s config > kubeconfig
+mkdir ${path.cwd}/config/${openstack_containerinfra_cluster_v1.cluster_1.name}
 KUBECONFIG=kubeconfig clusterctl get kubeconfig --namespace magnum-${openstack_containerinfra_cluster_v1.cluster_1.project_id} ${openstack_containerinfra_cluster_v1.cluster_1.stack_id} > ${path.cwd}/config/${openstack_containerinfra_cluster_v1.cluster_1.name}/config
 EOT
   file_permission = "0750"

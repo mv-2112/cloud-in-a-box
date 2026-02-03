@@ -20,3 +20,4 @@ sites/**
 kubeconfig
 app-demo/clusterctl
 app-demo/kubernetes-sample-apps
+app-demo/kubernetes-sample-apps

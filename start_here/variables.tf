@@ -71,6 +71,16 @@ variable "modules" {
       ]
       template_list = []
     }
+    "istio-ambient" = {
+      description = "Cloud-in-a-box Terraform Module for Istio (using Ambient Mesh)"
+      file_list = [
+        "main.tf",
+        "variables.tf",
+        "outputs.tf",
+        "providers.tf"
+      ]
+      template_list = []
+    }
     "jaeger" = {
       description = "Cloud-in-a-box Terraform Module for Jaeger"
       file_list = [

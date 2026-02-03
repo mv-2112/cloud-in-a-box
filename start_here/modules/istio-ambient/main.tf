@@ -10,23 +10,45 @@ resource "helm_release" "istio-base" {
   namespace        = "istio-system"
   version          = var.istio_version
   create_namespace = true
-
-  set {
-    name  = "defaultRevision"
-    value = "default"
-  }
 }
 
 
-# resource "helm_release" "istio-cniagent" {
-#   repository       = local.istio_charts_url
-#   chart            = "cni"
-#   name             = "istio-cni"
-#   namespace        = "istio-system"
-#   version          = var.istio_version
-#   create_namespace = true
-# }
+resource "helm_release" "istio-controlplane" {
+  repository       = local.istio_charts_url
+  chart            = "istiod"
+  name             = "istiod"
+  namespace        = "istio-system"
+  version          = var.istio_version
+  create_namespace = true
 
+  set {
+    name  = "profile"
+    value = "ambient"
+  }
+}
+
+resource "helm_release" "istio-cniagent" {
+  repository       = local.istio_charts_url
+  chart            = "cni"
+  name             = "istio-cni"
+  namespace        = "istio-system"
+  version          = var.istio_version
+  create_namespace = true
+
+  set {
+    name  = "profile"
+    value = "ambient"
+  }
+}
+
+resource "helm_release" "istio-ztunnel" {
+  repository       = local.istio_charts_url
+  chart            = "ztunnel"
+  name             = "ztunnel"
+  namespace        = "istio-system"
+  version          = var.istio_version
+  create_namespace = true
+}
 
 resource "helm_release" "istio-ingress" {
   repository       = local.istio_charts_url
@@ -36,7 +58,6 @@ resource "helm_release" "istio-ingress" {
   version          = var.istio_version
   create_namespace = true
 }
-
 
 # resource "helm_release" "istio-egress" {
 #   repository       = local.istio_charts_url
