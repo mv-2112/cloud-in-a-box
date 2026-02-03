@@ -57,17 +57,22 @@ resource "openstack_networking_router_interface_v2" "router_interface_1" {
   subnet_id = openstack_networking_subnet_v2.subnet1.id
 }
 
+resource "openstack_networking_router_interface_v2" "router_interface_2" {
+  router_id = openstack_networking_router_v2.router_1.id
+  subnet_id = openstack_networking_subnet_v2.subnet2.id
+}
+
 resource "openstack_containerinfra_cluster_v1" "cluster_1" {
   name                = "builder-cluster-$${random_string.suffix.result}"
   cluster_template_id = data.openstack_containerinfra_clustertemplate_v1.cluster_template.id
   master_count        = 1
   node_count          = 1
   keypair             = openstack_compute_keypair_v2.keypair.name
-  # create_timeout      = 1440
+  create_timeout      = 900
   # added as when creating with terraform gets ignored from template
   # floating_ip_enabled = true
-  fixed_network = openstack_networking_network_v2.network.name
-  fixed_subnet = openstack_networking_subnet_v2.subnet1.name
+  # fixed_network = openstack_networking_network_v2.network.name
+  # fixed_subnet = openstack_networking_subnet_v2.subnet1.name
 
 
 }
@@ -75,15 +80,16 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
 
 # Todo: create the depends_on based on whats enabled... e.g jenkins should wait for istio if its enabled, but carry on if not.
 
-module "storage-classes" {
-  source      = "${GITHUB_URL}/tf-mod-storage-classes"
-  k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
-  providers = {
-    kubernetes = kubernetes.kubernetes_config
-  }
+# These may not be needed now...
+# module "storage-classes" {
+#   source      = "${GITHUB_URL}/tf-mod-storage-classes"
+#   k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
+#   providers = {
+#     kubernetes = kubernetes.kubernetes_config
+#   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
-}
+#   depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+# }
 
 
 module "builder-istio" {
@@ -95,12 +101,12 @@ module "builder-istio" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.storage-classes]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
 
 module "builder-jenkins" {
-  count       = (var.enable_istio) ? 1 : 0
+  count       = (var.enable_jenkins) ? 1 : 0
   source      = "${GITHUB_URL}/tf-mod-jenkins"
   k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
   # domain  = "example.com"
@@ -109,7 +115,7 @@ module "builder-jenkins" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config, module.storage-classes]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
 

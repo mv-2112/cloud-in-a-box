@@ -6,7 +6,7 @@ resource "helm_release" "trust-manager" {
   repository       = local.chart_url
   chart            = "trust-manager"
   name             = "trust-manager"
-  namespace        = "trust-manager"
+  namespace        = "cert-manager"
   version          = var.trust_manager_version
   create_namespace = true
   set {

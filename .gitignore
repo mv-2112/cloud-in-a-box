@@ -17,3 +17,5 @@ auth/**
 **/*.qcow2
 **/40_app_deploy/istio*
 sites/**
+kubeconfig
+app-demo/clusterctl

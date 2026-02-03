@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+sunbeam enable observability embedded
+
+juju deploy cloudkitty-k8s --channel 2025.1/edge cloudkitty
+
+juju relate cloudkitty gnocchi
+juju relate cloudkitty:ingress-internal  traefik:ingress
+juju relate cloudkitty:identity-service keystone:identity-service
+juju relate cloudkitty rabbitmq
+juju relate cloudkitty mysql
+
+
+echo "exec into the container"
+echo "e.g sudo k8s kubectl exec -it -n openstack cloudkitty-0 -c cloudkitty -- bash"
+echo "sudo apt update"
+echo "sudo apt install -y software-properties-common"
+echo "sudo add-apt-repository -y ppa:ubuntu-cloud-archive/gazpacho-staging"
+echo "sudo apt update"
+echo "sudo apt upgrade"
+echo "and don't forget!"
+echo "cloudkitty-dbsync upgrade"

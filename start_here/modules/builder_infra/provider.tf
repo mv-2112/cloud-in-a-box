@@ -25,5 +25,6 @@ provider "helm" {
 provider "kubernetes" {
   alias          = "kubernetes_config"
   config_path    = "${path.cwd}/config/${openstack_containerinfra_cluster_v1.cluster_1.name}/config"
-  config_context = "${openstack_containerinfra_cluster_v1.cluster_1.name}"
+  # For now comment this out until magnum config is fixed for CAPI
+  # config_context = "${openstack_containerinfra_cluster_v1.cluster_1.name}"
 }

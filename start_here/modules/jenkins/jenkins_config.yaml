@@ -16,11 +16,11 @@ controller:
     # - git
     # - configuration-as-code
     # - job-dsl
-  # ingress:
-  #   enabled: true
-  #   paths: []
-  #   apiVersion: "extensions/v1beta1"
-  #   hostname: "jenkins.example.com"
+  ingress:
+    enabled: false
+    paths: []
+    apiVersion: "extensions/v1beta1"
+    hostname: "jenkins.example.com"
   JCasC:
     defaultConfig: true
     configScripts:
@@ -77,7 +77,7 @@ controller:
   serviceType: LoadBalancer
   unclassified:
     location:
-      url: "http://mv2112.tplinkdns.com:8080/"
+      url: "http://spanglywires.ddns.net:8080/"
   clouds:
   - kubernetes:
       containerCap: 10

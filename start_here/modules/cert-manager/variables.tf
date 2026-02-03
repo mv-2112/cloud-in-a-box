@@ -5,5 +5,5 @@ variable "k8s_cluster" {
 
 variable "cert_manager_version" {
   type    = string
-  default = "v1.17.2"
+  default = "v1.19.2"
 }

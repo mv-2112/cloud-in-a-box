@@ -2,7 +2,13 @@
 
 sunbeam utils juju-login
 
-sudo k8s kubectl delete pod horizon-0 -n openstack &
+sudo k8s kubectl -n openstack rollout restart statefulset horizon
+sudo k8s kubectl -n openstack rollout status statefulset horizon
+
+sudo k8s kubectl -n openstack rollout restart statefulset ovn-central
+sudo k8s kubectl -n openstack rollout status statefulset ovn-central
+
+
 sudo snap restart openstack.clusterd
 sudo snap set openstack-hypervisor logging.debug=true && sudo snap set openstack-hypervisor logging.debug=false
 

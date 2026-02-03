@@ -5,5 +5,5 @@ variable "k8s_cluster" {
 
 variable "trust_manager_version" {
   type    = string
-  default = "v1.18.2"
+  default = "v0.20.3"
 }

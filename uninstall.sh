@@ -12,10 +12,13 @@ for each_disk in sda sdb sdc sdd
 do
   echo "Zapping $each_disk"
   sudo microceph.ceph-bluestore-tool zap-device --dev /dev/$each_disk --yes-i-really-really-mean-it
-  echo "dd'ing $each_disk"
-  sudo dd if=/dev/zero of=/dev/$each_disk bs=1M count=100 status=progress
-  echo "Wiping $each_disk"
-  sudo wipefs -af /dev/$each_disk
+  if [[ $? -ne 0 ]];then
+    echo "Zap didn't work, dropping to simpler methods that may not work 100%..."
+    echo "dd'ing $each_disk"
+    sudo dd if=/dev/zero of=/dev/$each_disk bs=1M count=100 status=progress
+    echo "Wiping $each_disk"
+    sudo wipefs -af /dev/$each_disk
+  fi
 done
 sudo snap remove --purge microceph
 
@@ -23,6 +26,8 @@ sudo snap remove --purge microceph
 # Remove the bootstrap stuff
 sudo snap remove --purge k8s 
 sudo snap remove --purge cinder-volume
+sudo snap remove --purge manila-data
+sudo snap remove --purge grafana-agent
 sudo snap remove --purge kubectl
 sudo snap remove --purge epa-orchestrator
 sudo snap remove --purge juju 
