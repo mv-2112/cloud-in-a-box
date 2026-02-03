@@ -23,7 +23,7 @@ resource "local_sensitive_file" "builder_k8s_config" {
   file_permission = "0600"
 
   lifecycle {
-    ignore_changes = [all]
+    ignore_changes = all
   }
 }
 
