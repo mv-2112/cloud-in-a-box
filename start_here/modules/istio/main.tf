@@ -18,6 +18,16 @@ resource "helm_release" "istio-base" {
 }
 
 
+resource "helm_release" "istio-controlplane" {
+  repository       = local.istio_charts_url
+  chart            = "istiod"
+  name             = "istiod"
+  namespace        = "istio-system"
+  version          = var.istio_version
+  create_namespace = true
+}
+
+
 # resource "helm_release" "istio-cniagent" {
 #   repository       = local.istio_charts_url
 #   chart            = "cni"
