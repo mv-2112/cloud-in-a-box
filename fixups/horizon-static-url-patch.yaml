@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: horizon
+  namespace: openstack
+spec:
+  template:
+    spec:
+      containers:
+      - name: horizon
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - |
+                set -eux
+                LOG=/var/log/horizon-compress-poststart.log
+                echo "[INFO] postStart hook running in horizon container at $(date -Iseconds)" >> "$LOG"
+                scss=/usr/share/openstack-dashboard/openstack_dashboard/static/dashboard/scss/horizon.scss
+                if ! grep -q 'static_url' "$scss"; then
+                  sed -i '1 i\$static_url: "/openstack-horizon/static/";' "$scss"
+                  echo "[INFO] inserted static_url override" >> "$LOG"
+                fi
+                # Defer compress to allow charm/pebble to finish writing configs and restarting Apache.
+                (
+                  sleep 60
+                  cd /usr/share/openstack-dashboard/openstack_dashboard
+                  # Try compress up to 6 times, 30s apart.
+                  for i in $(seq 1 6); do
+                    if python3 /usr/share/openstack-dashboard/manage.py compress --force >> "$LOG" 2>&1; then
+                      echo "[INFO] delayed compress succeeded on attempt $i" >> "$LOG"
+                      pkill apache2 || true
+                      echo "[INFO] execute pkill apache2" >> "$LOG"
+                      exit 0
+                    fi
+                    echo "[WARN] delayed compress attempt $i failed, retrying..." >> "$LOG"
+                    sleep 30
+                  done
+                  echo "[WARN] delayed compress did not succeed after retries" >> "$LOG"
+                ) &
