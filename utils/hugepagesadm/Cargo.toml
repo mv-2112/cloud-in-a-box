@@ -1,0 +1,21 @@
+[package]
+name = "hugepagesadm"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+chrono = "0.4"
+libc = "0.2"
+which = "6"
+tempfile = "3"
+syslog = "6"
+
+[package.metadata.deb]
+maintainer = "Matt Verran <verranm76@gmail.com>"
+section = "admin"
+priority = "optional"
+assets = [
+  ["target/release/hugepagesadm", "usr/sbin/", "755"]
+]
