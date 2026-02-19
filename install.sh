@@ -2,7 +2,7 @@ sudo snap install openstack --channel 2025.1/edge
 
 sunbeam prepare-node-script --bootstrap | bash -x && newgrp snap_daemon
 
-sunbeam cluster bootstrap --role compute,control,storage
+sunbeam cluster bootstrap --role compute,control,storage --accept-defaults
 sunbeam configure --openrc demo-openrc
 sunbeam openrc > admin_openrc
 source ./admin_openrc 
@@ -10,7 +10,7 @@ echo $OS_PASSWORD
 echo $OS_USER_DOMAIN_NAME
 
 # Fix missing glyphs etc
-sudo k8s kubectl -n openstack patch statefulset horizon --patch-file ./keep/horizon-static-url-patch.yaml
+sudo k8s kubectl -n openstack patch statefulset horizon --patch-file ./fixups/horizon-static-url-patch.yaml
 sudo k8s kubectl -n openstack rollout restart statefulset horizon
 sudo k8s kubectl -n openstack rollout status statefulset horizon
 
@@ -29,6 +29,7 @@ sudo cat /root/.kube/config > openstack_kubeconfig
 
 yq -i '.clusters[].cluster.server = "https://192.168.1.251:6443"' ./openstack_kubeconfig
 
+juju switch mz640/openstack
 juju add-secret secret-kubeconfig kubeconfig#file=./openstack_kubeconfig
 juju grant-secret secret-kubeconfig magnum
 juju config magnum kubeconfig=secret:$(juju show-secret secret-kubeconfig --format=yaml | yq "keys[]")
