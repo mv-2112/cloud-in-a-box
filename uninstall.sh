@@ -30,7 +30,10 @@ sudo snap remove --purge manila-data
 sudo snap remove --purge grafana-agent
 sudo snap remove --purge kubectl
 sudo snap remove --purge epa-orchestrator
+sudo snap remove --purge opentelemetry-collector
 sudo snap remove --purge juju 
+sudo snap remove --purge helm
+sudo snap remove --purge microovn
 
 
 # Remove misc files
