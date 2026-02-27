@@ -1,0 +1,12 @@
+[package]
+name = "aspmadm"
+version = "0.1.0"
+edition = "2021"
+description = "Utility to manage PCIe ASPM kernel parameter via GRUB"
+license = "CC0-1.0"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+regex = "1"
+thiserror = "1"
+libc = "0.2"
