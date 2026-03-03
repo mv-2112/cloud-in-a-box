@@ -95,7 +95,7 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
 module "builder-istio" {
   count         = (var.enable_istio) ? 1 : 0
   source        = "${GITHUB_URL}/tf-mod-istio"
-  istio_version = "1.28.3"
+  istio_version = "1.29.0"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
@@ -110,7 +110,7 @@ module "builder-istio" {
 module "builder-istio-ambient" {
   count         = (var.enable_istio_ambient) ? 1 : 0
   source        = "${GITHUB_URL}/tf-mod-istio-ambient"
-  istio_version = "1.28.3"
+  istio_version = "1.29.0"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
@@ -188,7 +188,7 @@ module "trust-manager" {
     kubernetes = kubernetes.kubernetes_config
   }
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script, module.cert-manager]
   # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 }
 
