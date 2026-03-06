@@ -25,7 +25,7 @@ sunbeam enable caas
 
 
 # Fix magnum kubeconfig
-sudo cat /root/.kube/config | yq ".clusters[].cluster.server = \"https://$(hostname -i):6443\"" > ./openstack_config
+sudo cat /root/.kube/config | yq ".clusters[].cluster.server = \"https://$(hostname -i):6443\"" > ./openstack_kubeconfig
 
 juju switch mz640/openstack
 juju add-secret secret-kubeconfig kubeconfig#file=./openstack_kubeconfig
