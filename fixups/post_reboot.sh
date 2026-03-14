@@ -5,8 +5,10 @@ sunbeam utils juju-login
 sudo k8s kubectl -n openstack rollout restart statefulset horizon
 sudo k8s kubectl -n openstack rollout status statefulset horizon
 
-sudo k8s kubectl -n openstack rollout restart statefulset ovn-central
-sudo k8s kubectl -n openstack rollout status statefulset ovn-central
+#sudo k8s kubectl -n openstack rollout restart statefulset ovn-central
+#sudo k8s kubectl -n openstack rollout status statefulset ovn-central
+juju config ovn-central ovsdb-server-election-timer=6
+
 
 
 sudo snap restart openstack.clusterd
