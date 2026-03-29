@@ -22,3 +22,4 @@ for each in $(grep -A 5 Unseal ./vault_keys | tail +2); do sunbeam vault unseal 
 
 # juju show-unit ovn-central/0 --endpoint certificates --format yaml |  yq -r '."ovn-central/0"."relation-info"[0]."application-data".certificates' | jq -r '.[0].certificate_signing_request' | openssl req -text | egrep "Address|Subject"
 
+

@@ -62,6 +62,17 @@ variable "modules" {
       template_list = []
     }
     "istio" = {
+      description = "Cloud-in-a-box Terraform Module for Istio (supports Classic and Ambient)"
+      file_list = [
+        "main.tf",
+        "locals.tf",
+        "variables.tf",
+        "outputs.tf",
+        "providers.tf"
+      ]
+      template_list = []
+    }
+    "istio-classic" = {
       description = "Cloud-in-a-box Terraform Module for Istio"
       file_list = [
         "main.tf",
@@ -122,9 +133,16 @@ variable "sites" {
 
   default = {
     "spanglywires.ddns.net" = {
-      owner       = "Matt"
-      description = "spanglywires.ddns.net"
+      owner               = "Matt"
+      description         = "spanglywires.ddns.net"
+      github_organization = "blackcatengineering"
     }
+    # Need to think how we can have a for_each and change provider on the fly...
+    # "example.com" = {
+    #   owner       = "Alice"
+    #   description = "example.com"
+    #   github_org  = "example"
+    # }
     # "www.example2.com" = {
     #   owner    = "Bob"
     #   description    = "www.example2.com"

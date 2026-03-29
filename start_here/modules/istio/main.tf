@@ -1,58 +1,119 @@
-locals {
-  istio_charts_url = "https://istio-release.storage.googleapis.com/charts"
-}
-
-
-resource "helm_release" "istio-base" {
-  repository       = local.istio_charts_url
-  chart            = "base"
+resource "helm_release" "base" {
   name             = "istio-base"
-  namespace        = "istio-system"
+  repository       = local.istio_repo
+  chart            = "base"
   version          = var.istio_version
+  namespace        = var.namespace
   create_namespace = true
 
-  set {
-    name  = "defaultRevision"
-    value = "default"
+  dynamic "set" {
+    for_each = local.is_ambient ? [] : [1]
+    content {
+      name  = "defaultRevision"
+      value = var.istio_version
+    }
   }
 }
 
-
-resource "helm_release" "istio-controlplane" {
-  repository       = local.istio_charts_url
+resource "helm_release" "istiod" {
+  name             = "istiod-${var.istio_version}"
+  repository       = local.istio_repo
   chart            = "istiod"
-  name             = "istiod"
-  namespace        = "istio-system"
   version          = var.istio_version
+  namespace        = var.namespace
   create_namespace = true
+
+  depends_on = [helm_release.base]
+
+  dynamic "set" {
+    for_each = local.is_ambient ? [1] : []
+    content {
+      name  = "profile"
+      value = "ambient"
+    }
+  }
+
+  set {
+    name  = "revision"
+    value = var.istio_version
+  }
+
+  values = var.istiod_values
 }
 
+resource "helm_release" "cni" {
+  count = local.enable_cni ? 1 : 0
 
-# resource "helm_release" "istio-cniagent" {
-#   repository       = local.istio_charts_url
-#   chart            = "cni"
-#   name             = "istio-cni"
-#   namespace        = "istio-system"
-#   version          = var.istio_version
-#   create_namespace = true
-# }
+  name             = "istio-cni"
+  repository       = local.istio_repo
+  chart            = "cni"
+  version          = var.istio_version
+  namespace        = var.namespace
+  create_namespace = true
 
+  depends_on = [helm_release.base]
 
-resource "helm_release" "istio-ingress" {
-  repository       = local.istio_charts_url
+  dynamic "set" {
+    for_each = local.is_ambient ? [1] : []
+    content {
+      name  = "profile"
+      value = "ambient"
+    }
+  }
+}
+
+resource "helm_release" "ztunnel" {
+  count = local.is_ambient ? 1 : 0
+
+  name             = "ztunnel"
+  repository       = local.istio_repo
+  chart            = "ztunnel"
+  version          = var.istio_version
+  namespace        = var.namespace
+  create_namespace = true
+
+  depends_on = [
+    helm_release.istiod,
+    helm_release.cni
+  ]
+}
+
+resource "helm_release" "ingress" {
+  count = var.enable_ingress ? 1 : 0
+
+  name             = "istio-ingress-${var.istio_version}"
+  repository       = local.istio_repo
   chart            = "gateway"
-  name             = "istio-ingress"
-  namespace        = "istio-ingress"
   version          = var.istio_version
+  namespace        = var.ingress_namespace
   create_namespace = true
+
+  depends_on = [helm_release.istiod]
+
+  values = var.gateway_values
+
+  set {
+    name  = "revision"
+    value = var.istio_version
+  }
 }
 
+resource "helm_release" "egress" {
+  count = var.enable_egress ? 1 : 0
 
-# resource "helm_release" "istio-egress" {
-#   repository       = local.istio_charts_url
-#   chart            = "gateway"
-#   name             = "istio-egress"
-#   namespace        = "istio-egress"
-#   version          = var.istio_version
-#   create_namespace = true
-# }
+  name             = "istio-egress-${var.istio_version}"
+  repository       = local.istio_repo
+  chart            = "gateway"
+  version          = var.istio_version
+  namespace        = var.egress_namespace
+  create_namespace = true
+
+  depends_on = [helm_release.istiod]
+
+  values = var.gateway_values
+
+  set {
+    name  = "revision"
+    value = var.istio_version
+  }
+}

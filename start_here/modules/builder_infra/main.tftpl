@@ -93,33 +93,52 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
 
 
 module "builder-istio" {
-  count         = (var.enable_istio) ? 1 : 0
-  source        = "${GITHUB_URL}/tf-mod-istio"
-  istio_version = "1.29.0"
-  providers = {
-    helm       = helm.helm_config
-    kubernetes = kubernetes.kubernetes_config
-  }
+  count              = (var.enable_istio) ? 1 : 0
+  source             = "${GITHUB_URL}/tf-mod-istio"
+  istio_helm_version = "1.29.0"
+  mode               = "ambient"
+  istio_version      = "1-29"
+
+  enable_egress = true
+
+  # istiod_values = [
+  #   file("$${path.module}/values/istiod.yaml")
+  # ]
 
   depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
   # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 
 }
 
+# Replaced by combined
+# module "builder-istio-classic" {
+#   count         = (var.enable_istio) ? 1 : 0
+#   source        = "${GITHUB_URL}/tf-mod-istio"
+#   istio_version = "1.29.0"
+#   providers = {
+#     helm       = helm.helm_config
+#     kubernetes = kubernetes.kubernetes_config
+#   }
 
-module "builder-istio-ambient" {
-  count         = (var.enable_istio_ambient) ? 1 : 0
-  source        = "${GITHUB_URL}/tf-mod-istio-ambient"
-  istio_version = "1.29.0"
-  providers = {
-    helm       = helm.helm_config
-    kubernetes = kubernetes.kubernetes_config
-  }
+#   depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+#   # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
 
-  depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
-  # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+# }
 
-}
+# Replaced by combined
+# module "builder-istio-ambient" {
+#   count         = (var.enable_istio_ambient) ? 1 : 0
+#   source        = "${GITHUB_URL}/tf-mod-istio-ambient"
+#   istio_version = "1.29.0"
+#   providers = {
+#     helm       = helm.helm_config
+#     kubernetes = kubernetes.kubernetes_config
+#   }
+
+#   depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_file.bodge_magnum_script]
+#   # depends_on = [openstack_containerinfra_cluster_v1.cluster_1, local_sensitive_file.builder_k8s_config]
+
+# }
 
 
 module "builder-jenkins" {

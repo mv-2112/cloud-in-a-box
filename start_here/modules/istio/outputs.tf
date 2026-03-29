@@ -1,7 +1,15 @@
-# resource "local_sensitive_file" "istio_wozere" {
-#   filename        = "${path.cwd}/istio_woz_ere.txt"
-#   content         = "Blah"
-#   file_permission = "0600"
-# }
+output "revision" {
+  value = var.istio_version
+}
 
+output "istiod_name" {
+  value = helm_release.istiod.name
+}
 
+output "ingress_enabled" {
+  value = var.enable_ingress
+}
+
+output "ambient_enabled" {
+  value = local.is_ambient
+}

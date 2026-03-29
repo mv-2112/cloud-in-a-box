@@ -3,7 +3,7 @@ sudo snap install openstack --channel 2025.1/edge
 sunbeam prepare-node-script --bootstrap | bash -x && newgrp snap_daemon
 
 sunbeam cluster bootstrap --role compute,control,storage --accept-defaults
-sunbeam configure --openrc demo-openrc
+sunbeam configure --openrc demo-openrc --accept-defaults
 sunbeam openrc > admin_openrc
 source ./admin_openrc 
 echo $OS_PASSWORD
@@ -33,7 +33,8 @@ juju grant-secret secret-kubeconfig magnum
 juju config magnum kubeconfig=secret:$(juju show-secret secret-kubeconfig --format=yaml | yq "keys[]")
 
 if [[ ! -f /usr/local/bin/clusterctl ]]; then
-  curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.10.5/clusterctl-linux-amd64 -o clusterctl
+  #curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.10.5/clusterctl-linux-amd64 -o clusterctl
+  curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.12.4/clusterctl-linux-amd64 -o clusterctl
   sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl
 fi
 
