@@ -6,12 +6,12 @@ variable "modules" {
   }))
 
   default = {
-    "backstage" = {
+    "terraform-module-backstage" = {
       description   = "Cloud-in-a-box Terraform Module for Backstage"
       file_list     = []
       template_list = []
     }
-    "builder_infra" = {
+    "terraform-module-builder_infra" = {
       description = "Cloud-in-a-box Terraform Module for Builder Infrastructure"
       file_list = [
         "variables.tf",
@@ -22,7 +22,7 @@ variable "modules" {
         "main.tftpl"
       ]
     }
-    "cert-manager" = {
+    "terraform-module-cert-manager" = {
       description = "Cloud-in-a-box Terraform Module for Cert Manager"
       file_list = [
         "main.tf",
@@ -32,7 +32,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "trust-manager" = {
+    "terraform-module-trust-manager" = {
       description = "Cloud-in-a-box Terraform Module for Trust Manager"
       file_list = [
         "main.tf",
@@ -42,7 +42,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "harness" = {
+    "terraform-module-harness" = {
       description = "Cloud-in-a-box Terraform Module for Harness"
       file_list = [
         "main.tf",
@@ -51,7 +51,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "ip-masq-agent" = {
+    "terraform-module-ip-masq-agent" = {
       description = "Cloud-in-a-box Terraform Module for IP Masq Agent"
       file_list = [
         "main.tf",
@@ -61,7 +61,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "istio" = {
+    "terraform-module-istio" = {
       description = "Cloud-in-a-box Terraform Module for Istio (supports Classic and Ambient)"
       file_list = [
         "main.tf",
@@ -72,7 +72,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "istio-classic" = {
+    "terraform-module-istio-classic" = {
       description = "Cloud-in-a-box Terraform Module for Istio"
       file_list = [
         "main.tf",
@@ -82,7 +82,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "istio-ambient" = {
+    "terraform-module-istio-ambient" = {
       description = "Cloud-in-a-box Terraform Module for Istio (using Ambient Mesh)"
       file_list = [
         "main.tf",
@@ -92,7 +92,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "jaeger" = {
+    "terraform-module-jaeger" = {
       description = "Cloud-in-a-box Terraform Module for Jaeger"
       file_list = [
         "main.tf",
@@ -103,7 +103,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "jenkins" = {
+    "terraform-module-jenkins" = {
       description = "Cloud-in-a-box Terraform Module for Jenkins"
       file_list = [
         "jenkins.tf",
@@ -113,7 +113,7 @@ variable "modules" {
       ]
       template_list = []
     }
-    "storage-classes" = {
+    "terraform-module-storage-classes" = {
       description = "Cloud-in-a-box Terraform Module for Storage Classes"
       file_list = [
         "main.tf",

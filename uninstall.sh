@@ -31,6 +31,7 @@ sudo snap remove --purge grafana-agent
 sudo snap remove --purge kubectl
 sudo snap remove --purge epa-orchestrator
 sudo snap remove --purge opentelemetry-collector
+sudo snap remove --purge node-exporter
 sudo snap remove --purge juju 
 sudo snap remove --purge helm
 sudo snap remove --purge microovn
@@ -47,6 +48,7 @@ rm -rf ~/snap/microstack/
 rm -rf ~/snap/juju/
 rm -rf ~/snap/k8s/
 rm -rf /run/containerd
+rm -rf ~/.kube/cache
 
 
 # Remove LXD

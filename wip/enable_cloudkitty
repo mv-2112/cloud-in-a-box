@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+sunbeam enable observability embedded
+
+juju deploy cloudkitty-k8s --channel 2025.1/edge cloudkitty
+
+juju relate cloudkitty gnocchi
+juju relate cloudkitty:ingress-internal  traefik:ingress
+juju relate cloudkitty:identity-service keystone:identity-service
+juju relate cloudkitty rabbitmq
+juju relate cloudkitty mysql
+
+
+echo "exec into the container"
+echo "e.g sudo k8s kubectl exec -it -n openstack cloudkitty-0 -c cloudkitty -- bash"
+echo "sudo apt update && sudo apt install -y software-properties-common"
+echo "sudo add-apt-repository -y ppa:ubuntu-cloud-archive/gazpacho-staging && sudo apt update"
+echo "sudo apt upgrade -y"
+echo "and don't forget!"
+echo "cloudkitty-dbsync upgrade"
+
+
+
+
+# Cloudkitty dashboard
+ln -s /usr/lib/python3/dist-packages/cloudkittydashboard/enabled/_[0-9]*.py \
+/usr/share/openstack-dashboard/openstack_dashboard/enabled/
+
+python3 /usr/share/openstack-dashboard/manage.py compress --force
+
+
+pkill apache2
+
+
+
+https://github.com/mv-2112/ubuntu-openstack-rocks/blob/4c81c848d3f107afe9cb991acdcf1c9a57efc970/rocks/cloudkitty-consolidated/rockcraft.yaml
+
+

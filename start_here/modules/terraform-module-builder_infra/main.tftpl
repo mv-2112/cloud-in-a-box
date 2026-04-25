@@ -82,7 +82,7 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
 
 # These may not be needed now...
 # module "storage-classes" {
-#   source      = "${GITHUB_URL}/tf-mod-storage-classes"
+#   source      = "${GITHUB_URL}/terraform-module-storage-classes"
 #   k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
 #   providers = {
 #     kubernetes = kubernetes.kubernetes_config
@@ -94,7 +94,7 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
 
 module "builder-istio" {
   count              = (var.enable_istio) ? 1 : 0
-  source             = "${GITHUB_URL}/tf-mod-istio"
+  source             = "${GITHUB_URL}/terraform-module-istio"
   istio_helm_version = "1.29.0"
   mode               = "ambient"
   istio_version      = "1-29"
@@ -113,7 +113,7 @@ module "builder-istio" {
 # Replaced by combined
 # module "builder-istio-classic" {
 #   count         = (var.enable_istio) ? 1 : 0
-#   source        = "${GITHUB_URL}/tf-mod-istio"
+#   source        = "${GITHUB_URL}/terraform-module-istio"
 #   istio_version = "1.29.0"
 #   providers = {
 #     helm       = helm.helm_config
@@ -128,7 +128,7 @@ module "builder-istio" {
 # Replaced by combined
 # module "builder-istio-ambient" {
 #   count         = (var.enable_istio_ambient) ? 1 : 0
-#   source        = "${GITHUB_URL}/tf-mod-istio-ambient"
+#   source        = "${GITHUB_URL}/terraform-module-istio-ambient"
 #   istio_version = "1.29.0"
 #   providers = {
 #     helm       = helm.helm_config
@@ -143,7 +143,7 @@ module "builder-istio" {
 
 module "builder-jenkins" {
   count       = (var.enable_jenkins) ? 1 : 0
-  source      = "${GITHUB_URL}/tf-mod-jenkins"
+  source      = "${GITHUB_URL}/terraform-module-jenkins"
   k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
   # domain  = "example.com"
   providers = {
@@ -159,7 +159,7 @@ module "builder-jenkins" {
 
 module "builder-ip-masq" {
   count       = (var.enable_ip_masq) ? 1 : 0
-  source      = "${GITHUB_URL}/tf-mod-ip-masq-agent"
+  source      = "${GITHUB_URL}/terraform-module-ip-masq-agent"
   k8s_cluster = openstack_containerinfra_cluster_v1.cluster_1.name
   # domain  = "example.com"
   providers = {
@@ -173,7 +173,7 @@ module "builder-ip-masq" {
 
 module "harness" {
   count  = (var.enable_harness) ? 1 : 0
-  source = "${GITHUB_URL}/tf-mod-harness"
+  source = "${GITHUB_URL}/terraform-module-harness"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
@@ -188,7 +188,7 @@ module "harness" {
 
 module "cert-manager" {
   count  = (var.enable_cert_manager) ? 1 : 0
-  source = "${GITHUB_URL}/tf-mod-cert-manager"
+  source = "${GITHUB_URL}/terraform-module-cert-manager"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
@@ -201,7 +201,7 @@ module "cert-manager" {
 
 module "trust-manager" {
   count  = (var.enable_trust_manager) ? 1 : 0
-  source = "${GITHUB_URL}/tf-mod-trust-manager"
+  source = "${GITHUB_URL}/terraform-module-trust-manager"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
@@ -214,7 +214,7 @@ module "trust-manager" {
 
 module "jaeger" {
   count  = (var.enable_jaeger) ? 1 : 0
-  source = "${GITHUB_URL}/tf-mod-jaeger"
+  source = "${GITHUB_URL}/terraform-module-jaeger"
   providers = {
     helm       = helm.helm_config
     kubernetes = kubernetes.kubernetes_config
