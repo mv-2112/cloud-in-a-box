@@ -53,7 +53,7 @@ resource "github_repository_file" "main_variables" {
   overwrite_on_create = true
 }
 
-resource "github_release" "initial" {
+resource "github_release" "site_initial" {
   for_each   = var.sites
   repository = github_repository.starter_repo[each.key].name
   tag_name   = "v1.0.0"

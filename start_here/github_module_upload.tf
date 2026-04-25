@@ -57,7 +57,7 @@ resource "github_repository_file" "module_tpl_files" {
   overwrite_on_create = true
 }
 
-resource "github_release" "initial" {
+resource "github_release" "module_initial" {
   for_each   = var.modules
   repository = github_repository.module_repo[each.key].name
   tag_name   = "v1.0.0"
