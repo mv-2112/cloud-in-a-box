@@ -94,7 +94,7 @@ resource "openstack_containerinfra_cluster_v1" "cluster_1" {
 
 module "builder-istio" {
   source  = "${GITHUB_URL}/terraform-module-istio"
-  version = "1.0.0"
+  # version = "1.0.0"
 
   count = (var.enable_istio) ? 1 : 0
 
@@ -117,7 +117,7 @@ module "builder-istio" {
 
 module "builder-jenkins" {
   source  = "${GITHUB_URL}/terraform-module-jenkins"
-  version = "1.0.0"
+  # version = "1.0.0"
 
   count = (var.enable_jenkins) ? 1 : 0
 
@@ -136,7 +136,7 @@ module "builder-jenkins" {
 
 module "builder-ip-masq" {
   source  = "${GITHUB_URL}/terraform-module-ip-masq-agent"
-  version = "1.0.0"
+  # version = "1.0.0"
 
   count = (var.enable_ip_masq) ? 1 : 0
 
@@ -153,7 +153,7 @@ module "builder-ip-masq" {
 
 module "harness" {
   source  = "${GITHUB_URL}/terraform-module-harness"
-  version = "1.0.0"
+  # version = "1.0.0"
 
   count = (var.enable_harness) ? 1 : 0
 
@@ -171,7 +171,7 @@ module "harness" {
 
 module "cert-manager" {
   source  = "${GITHUB_URL}/terraform-module-cert-manager"
-  version = "1.0.0"
+  # version = "1.0.0"
 
   count = (var.enable_cert_manager) ? 1 : 0
 
@@ -187,7 +187,7 @@ module "cert-manager" {
 
 module "trust-manager" {
   source  = "${GITHUB_URL}/terraform-module-trust-manager"
-  version = "1.0.0"
+  # version = "1.0.0"
 
   count = (var.enable_trust_manager) ? 1 : 0
 
@@ -203,7 +203,7 @@ module "trust-manager" {
 
 module "jaeger" {
   source  = "${GITHUB_URL}/terraform-module-jaeger"
-  version = "1.0.0"
+  # version = "1.0.0"
 
   count = (var.enable_jaeger) ? 1 : 0
 
