@@ -4,18 +4,18 @@ resource "github_repository" "starter_repo" {
   description = each.value.description
 
   visibility = "public"
-  auto_init = true
+  auto_init  = true
 
-#   template {
-#     owner                = "github"
-#     repository           = "terraform-template-module"
-#     include_all_branches = true
-#   }
+  #   template {
+  #     owner                = "github"
+  #     repository           = "terraform-template-module"
+  #     include_all_branches = true
+  #   }
 }
 
 
 resource "github_repository_file" "gitignore" {
-  for_each    = var.sites
+  for_each            = var.sites
   repository          = github_repository.starter_repo[each.key].name
   branch              = "main"
   file                = ".gitignore"
@@ -30,7 +30,7 @@ resource "github_repository_file" "gitignore" {
 
 # Start the modularisation - not fully in use yet
 resource "github_repository_file" "main_builder_terraform" {
-  for_each    = var.sites
+  for_each            = var.sites
   repository          = github_repository.starter_repo[each.key].name
   branch              = "main"
   file                = "main.tf"
@@ -42,7 +42,7 @@ resource "github_repository_file" "main_builder_terraform" {
 }
 
 resource "github_repository_file" "main_variables" {
-  for_each    = var.sites
+  for_each            = var.sites
   repository          = github_repository.starter_repo[each.key].name
   branch              = "main"
   file                = "variables.tf"
@@ -51,4 +51,12 @@ resource "github_repository_file" "main_variables" {
   commit_author       = "Terraform User"
   commit_email        = "builder-admin@${each.key}"
   overwrite_on_create = true
+}
+
+resource "github_release" "initial" {
+  for_each   = var.sites
+  repository = github_repository.starter_repo[each.key].name
+  tag_name   = "v1.0.0"
+  draft      = false
+  prerelease = false
 }
