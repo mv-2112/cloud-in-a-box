@@ -1,5 +1,6 @@
 module "builder-infra" {
-  source                 = "${GITHUB_URL}/terraform-module-builder_infra"
+  source                 = "${GITHUB_URL}/terraform-module-builder-infra"
+  version                = "1.0.0"
   domain                 = "$${var.domain}"
   enable_istio           = false
   enable_istio_ambient   = false

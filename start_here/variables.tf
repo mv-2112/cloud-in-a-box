@@ -11,7 +11,7 @@ variable "modules" {
       file_list     = []
       template_list = []
     }
-    "terraform-module-builder_infra" = {
+    "terraform-module-builder-infra" = {
       description = "Cloud-in-a-box Terraform Module for Builder Infrastructure"
       file_list = [
         "variables.tf",
