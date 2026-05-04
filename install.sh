@@ -18,7 +18,9 @@ sudo k8s kubectl -n openstack rollout status statefulset horizon
 sunbeam enable loadbalancer
 sunbeam enable vault
 
-sunbeam vault init  5 3 > vault_keys
+sunbeam vault init  5 3 > ./vault_keys
+sudo chattr +i ./vault_keys
+
 for each in $(grep -A 5 Unseal ./vault_keys | tail +2); do sunbeam vault unseal $each; done
 sunbeam vault authorize-charm $(grep Root ./vault_keys | cut -d: -f2)
 sunbeam enable caas

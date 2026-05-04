@@ -50,6 +50,8 @@ rm -rf ~/snap/k8s/
 rm -rf /run/containerd
 rm -rf ~/.kube/cache
 
+sudo chattr -i ./vault_keys
+
 
 # Remove LXD
 for each in $(lxc list -c n -f csv); do lxc stop $each; lxc delete $each; done
