@@ -34,19 +34,11 @@ resource "github_repository_file" "module_files" {
   commit_author       = "Terraform User"
   commit_email        = "builder-admin@example.com"
   overwrite_on_create = true
+
+  depends_on = [ github_repository.module_repo ]
 }
 
-resource "github_repository_file" "common_files_tf_check" {
-  for_each            = var.modules
-  repository          = github_repository.module_repo[each.key].name
-  branch              = "main"
-  file                = ".github/workflows/terraform_checks.yaml"
-  content             = file("modules/common/.github/workflows/terraform_checks.yaml")
-  commit_message      = "Managed by Terraform"
-  commit_author       = "Terraform User"
-  commit_email        = "builder-admin@example.com"
-  overwrite_on_create = true
-}
+
 
 resource "github_repository_file" "module_tpl_files" {
   for_each = { for combination in flatten([
@@ -75,4 +67,20 @@ resource "github_release" "module_initial" {
   tag_name   = "v1.0.0"
   draft      = false
   prerelease = false
+
+  depends_on = [ github_repository_file.module_files, github_repository_file.module_tpl_files ]
+}
+
+resource "github_repository_file" "common_files_tf_check" {
+  for_each            = var.modules
+  repository          = github_repository.module_repo[each.key].name
+  branch              = "main"
+  file                = ".github/workflows/terraform_checks.yaml"
+  content             = file("modules/common/.github/workflows/terraform_checks.yaml")
+  commit_message      = "Managed by Terraform"
+  commit_author       = "Terraform User"
+  commit_email        = "builder-admin@example.com"
+  overwrite_on_create = true
+
+  depends_on = [ github_release.module_initial ]
 }
