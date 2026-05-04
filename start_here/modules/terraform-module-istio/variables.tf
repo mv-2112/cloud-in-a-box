@@ -1,67 +1,41 @@
-variable "istio_helm_version" {
-  description = "Istio Helm chart version"
-  type        = string
-}
-
-variable "mode" {
-  description = "Istio mode: classic or ambient"
-  type        = string
-  default     = "classic"
-
-  validation {
-    condition     = contains(["classic", "ambient"], var.mode)
-    error_message = "mode must be 'classic' or 'ambient'"
-  }
-}
-
 variable "istio_version" {
-  description = "Istio version"
+  description = "Istio version to install (e.g., '1.20.0')"
   type        = string
-  default     = "default"
+  default     = "1.20.0"
 }
 
-variable "namespace" {
-  type    = string
-  default = "istio-system"
-}
-
-variable "ingress_namespace" {
-  type    = string
-  default = "istio-ingress"
-}
-
-variable "egress_namespace" {
-  type    = string
-  default = "istio-egress"
-}
-
-variable "enable_ingress" {
-  type    = bool
-  default = true
-}
-
-variable "enable_egress" {
-  type    = bool
-  default = false
-}
-
-variable "enable_cni" {
-  description = "Override CNI enablement"
+variable "enable_ambient" {
+  description = "Enable Istio ambient mode (zero-sidecar)"
   type        = bool
-  default     = null
+  default     = false
+}
+
+variable "istio_namespace" {
+  description = "Namespace for Istio components"
+  type        = string
+  default     = "istio-system"
+}
+
+variable "istio_base_values" {
+  description = "Custom Helm values for istio-base chart (YAML format)"
+  type        = string
+  default     = ""
 }
 
 variable "istiod_values" {
-  type    = list(any)
-  default = []
+  description = "Custom Helm values for istiod chart (YAML format)"
+  type        = string
+  default     = ""
 }
 
 variable "gateway_values" {
-  type    = list(any)
-  default = []
+  description = "Custom Helm values for gateway chart (YAML format)"
+  type        = string
+  default     = ""
 }
 
-variable "tags" {
-  type    = map(string)
-  default = {}
+variable "enable_gateway" {
+  description = "Deploy Istio ingress gateway"
+  type        = bool
+  default     = true
 }

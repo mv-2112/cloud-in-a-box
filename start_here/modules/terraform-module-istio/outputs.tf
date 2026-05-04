@@ -6,10 +6,10 @@ output "istiod_name" {
   value = helm_release.istiod.name
 }
 
-output "ingress_enabled" {
-  value = var.enable_ingress
+output "gateway_enabled" {
+  value = var.enable_gateway
 }
 
 output "ambient_enabled" {
-  value = local.is_ambient
+  value = var.enable_ambient
 }

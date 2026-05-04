@@ -1,0 +1,34 @@
+name: 'Terraform'
+
+on: [push]
+  
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Install terraform
+    - name: Terraform install
+      run: sudo snap install terraform --classic
+    
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    # Get terraform providers
+    - name: Terraform Init
+      run: terraform init -upgrade
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Format
+      run: terraform fmt -check
+
+    # Checks that all Terraform configuration files validate correctly
+    - name: Terraform Validate
+      run: terraform validate

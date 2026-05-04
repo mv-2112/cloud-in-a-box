@@ -65,27 +65,6 @@ variable "modules" {
       description = "Cloud-in-a-box Terraform Module for Istio (supports Classic and Ambient)"
       file_list = [
         "main.tf",
-        "locals.tf",
-        "variables.tf",
-        "outputs.tf",
-        "providers.tf"
-      ]
-      template_list = []
-    }
-    "terraform-module-istio-classic" = {
-      description = "Cloud-in-a-box Terraform Module for Istio"
-      file_list = [
-        "main.tf",
-        "variables.tf",
-        "outputs.tf",
-        "providers.tf"
-      ]
-      template_list = []
-    }
-    "terraform-module-istio-ambient" = {
-      description = "Cloud-in-a-box Terraform Module for Istio (using Ambient Mesh)"
-      file_list = [
-        "main.tf",
         "variables.tf",
         "outputs.tf",
         "providers.tf"
