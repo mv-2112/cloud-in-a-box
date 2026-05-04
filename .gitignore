@@ -1,12 +1,18 @@
+# Don't track terraform
 **/.terraform*
 **/.terraform.lock.hcl
 **/terraform.tfstate.backup
 **/terraform.tfstate.*.backup
 **/terraform.tfstate.backup
 **/terraform.tfstate
+
+# Don't track anything secret
 **/*openrc
 **/vault_keys
 **/*.ssh
+
+
+# What are these?
 auth/**
 **/cookies.txt
 **/appinfo/**
@@ -25,3 +31,4 @@ diags/**
 **/Cargo.lock
 utils/**/target/**
 config-dir/**
+wip/**
