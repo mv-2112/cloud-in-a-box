@@ -37,7 +37,8 @@ resource "github_repository_file" "module_files" {
 }
 
 resource "github_repository_file" "common_files_tf_check" {
-  repository          = github_repository.module_repo[each.value.module].name
+  for_each            = var.modules
+  repository          = github_repository.module_repo[each.key].name
   branch              = "main"
   file                = ".github/workflows/terraform_checks.yaml"
   content             = file("modules/common/.github/workflows/terraform_checks.yaml")
