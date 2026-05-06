@@ -62,7 +62,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "ck8s-cluster-template-ov
     octavia_provider       = "ovn"
     octavia_lb_algorithm   = "SOURCE_IP_PORT"
     octavia_lb_healthcheck = false
-    # auto_scaling_enabled   = true
+    auto_scaling_enabled   = false
     # min_node_count         = 1
     # max_node_count         = 5
   }

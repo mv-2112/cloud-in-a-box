@@ -53,6 +53,18 @@ resource "github_repository_file" "main_variables" {
   overwrite_on_create = true
 }
 
+resource "github_repository_file" "tf_backend" {
+  for_each            = var.sites
+  repository          = github_repository.starter_repo[each.key].name
+  branch              = "main"
+  file                = "backend.tf"
+  content             = templatefile("templates/backend.tftpl", { SITE = each.key, S3_URL = data.openstack_identity_endpoint_v3.s3_endpoint.url })
+  commit_message      = "Managed by Terraform"
+  commit_author       = "Terraform User"
+  commit_email        = "builder-admin@${each.key}"
+  overwrite_on_create = true
+}
+
 resource "github_release" "site_initial" {
   for_each   = var.sites
   repository = github_repository.starter_repo[each.key].name

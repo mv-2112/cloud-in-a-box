@@ -20,6 +20,11 @@ resource "openstack_identity_user_v3" "domain_user" {
   ignore_change_password_upon_first_use = true
 }
 
+resource "openstack_identity_ec2_credential_v3" "domain_user_ec2_key" {
+    for_each           = var.sites
+    project_id = openstack_identity_project_v3.builder[each.key].id
+}
+
 
 
 

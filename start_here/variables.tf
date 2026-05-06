@@ -142,10 +142,10 @@ variable "k8s_templates" {
   }))
 
   default = {
-    "v1.32.8" = {
+    "v1.36.0" = {
       coe_os_image        = "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
       dns_servers         = ["8.8.8.8", "8.8.4.4"]
-      glance_kube_version = "v1.32.8"
+      glance_kube_version = "v1.36.0"
     }
   }
 }
@@ -170,5 +170,5 @@ variable "external_network" {
 
 variable "default_k8s_template" {
   type    = string
-  default = "v1.32.8"
+  default = "v1.36.0"
 }

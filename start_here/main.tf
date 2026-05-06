@@ -3,6 +3,11 @@ data "openstack_identity_endpoint_v3" "keystone_endpoint" {
   interface    = "internal"
 }
 
+data "openstack_identity_endpoint_v3" "s3_endpoint" {
+  service_name = "s3"
+  interface    = "public"
+}
+
 data "openstack_networking_network_v2" "external_network" {
   name = var.external_network
 }

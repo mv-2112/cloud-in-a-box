@@ -1,0 +1,28 @@
+terraform {
+  backend "s3" {
+    bucket = "tf-store"
+    key    = "state/terraform.tfstate"
+    region = "RegionOne"
+    endpoints = {
+      s3 = "${S3_URL}"
+    }
+
+    profile                  = "${SITE}-builder-admin"
+    shared_config_files      = ["~/.aws/config"]
+    shared_credentials_files = ["~/.aws/credentials"]
+
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+
+    use_path_style = true
+
+    # The following fields should be added if your Object Storage user credentials are not
+    # already configured in files ~/.aws/credentials, ~/.aws/config or in
+    # environment variables. e.g. like these
+    # access_key                  = "0dd753126ba84feba505160e458859a4"
+    # secret_key                  = "391033ccb7194b5c94331f22900b035c"
+  }
+}
