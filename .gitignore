@@ -24,12 +24,10 @@ auth/**
 **/40_app_deploy/istio*
 sites/**
 kubeconfig
-app-demo/clusterctl
-app-demo/kubernetes-sample-apps
-app-demo/kubernetes-sample-apps
+app-demo/**
 diags/**
 **/Cargo.lock
 utils/**/target/**
 config-dir/**
 wip/**
-app-demo/kubernetes-sample-apps
+
