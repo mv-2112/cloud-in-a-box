@@ -32,3 +32,4 @@ diags/**
 utils/**/target/**
 config-dir/**
 wip/**
+app-demo/kubernetes-sample-apps
