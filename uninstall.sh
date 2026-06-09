@@ -12,45 +12,49 @@ NC='\033[0m' # No Color
 # Bold text
 BOLD='\033[1m'
 
-# --- Spinner Function ---
-spinner() {
-  local pid=$1
-  local message=$2
-  local spin_chars=('|' '/' '-' '\')
-  local i=0
-  local spin_str=""
-
-  # Hide the cursor
-  tput civis
-
-  # Start spinner
-  while kill -0 $pid 2>/dev/null; do
-    i=$(( (i+1) % ${#spin_chars[@]} ))
-    spin_str="${spin_chars[$i]}"
-    printf "\r${YELLOW}${spin_str} ${message}${NC}"
-    sleep 0.1
-  done
-
-  # Clear the spinner line
-  printf "\r\033[K"
-  tput cnorm
-}
-
 run_with_spinner() {
-  local message=$1
-  shift
-  printf "${YELLOW}→ ${message}...${NC}\n"
-  "$@" &
-  local pid=$!
-  spinner $pid "$message"
-  wait $pid
-  local status=$?
-  if [ $status -eq 0 ]; then
-    echo -e "${GREEN}✓ ${message} completed${NC}"
-  else
-    echo -e "${RED}✗ ${message} failed${NC}"
-  fi
-  return $status
+    local cmd="$*"
+    local pid
+    local spinner='|/-\'
+    local i=0
+    local output_lines=()
+    local max_lines=5
+
+    # Clear any previous output
+    tput ed
+
+    # Print spinner line
+    printf "Running: %s... " "$cmd"
+    local spinner_line=$(( $(tput lines) - 1 ))
+
+    # Run command in background, capture stdout/stderr
+    $cmd 2>&1 | while IFS= read -r line; do
+        # Add line to buffer
+        output_lines+=("$line")
+        if [ ${#output_lines[@]} -gt $max_lines ]; then
+            output_lines=("${output_lines[@]:1}")
+        fi
+
+        # Move cursor to below spinner, clear and reprint output
+        tput cup $((spinner_line + 1)) 0
+        tput ed
+        for line in "${output_lines[@]}"; do
+            printf "%s\n" "$line"
+        done
+    done &
+    pid=$!
+
+    # Spinner loop
+    while kill -0 $pid 2>/dev/null; do
+        i=$(( (i+1) % 4 ))
+        printf "\r%s" "${spinner:$i:1}"
+        sleep 0.1
+    done
+
+    # Cleanup
+    wait $pid
+    printf "\r\033[K"
+    printf "Done: %s\n" "$cmd"
 }
 
 # --- Helper Functions ---
