@@ -41,6 +41,7 @@ resource "local_sensitive_file" "output-aws-config" {
 region = RegionOne
 endpoint_url = ${data.openstack_identity_endpoint_v3.s3_endpoint.url}
 services = ${each.key}-builder
+ca_bundle = /etc/ssl/certs/ca-certificates.crt
 
 [profile ${each.key}-builder-admin]
 region = RegionOne
