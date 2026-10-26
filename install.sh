@@ -8,7 +8,7 @@ sudo snap install openstack --channel $RELEASE
 
 sunbeam prepare-node-script --bootstrap | bash -x && newgrp snap_daemon
 
-sunbeam cluster bootstrap --role compute,control,storage --accept-defaults
+sunbeam cluster bootstrap --role compute,control,storage,network --accept-defaults
 sunbeam configure --openrc demo-openrc --accept-defaults
 sunbeam openrc > admin_openrc
 source ./admin_openrc 
@@ -26,6 +26,9 @@ sunbeam enable secrets
 sunbeam enable tls self-signed --endpoint public --endpoint internal --endpoint rgw
 
 sunbeam enable loadbalancer
+sudo snap set openstack feature.microovn-sdn=true
+sudo snap set openstack ovn.provider=microovn
+sunbeam loadbalancer configure
 
 mkdir certs
 openssl genrsa -out certs/ca.key 2048
