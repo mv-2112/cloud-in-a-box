@@ -108,6 +108,8 @@ variable "sites" {
   type = map(object({
     owner       = string
     description = string
+    github_organization = string
+    github_host_site = string
   }))
 
   default = {
@@ -115,6 +117,7 @@ variable "sites" {
       owner               = "Matt"
       description         = "spanglywires.ddns.net"
       github_organization = "blackcatengineering"
+      github_host_site    = "github.com"
     }
     # Need to think how we can have a for_each and change provider on the fly...
     # "example.com" = {

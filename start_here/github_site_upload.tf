@@ -65,6 +65,19 @@ resource "github_repository_file" "tf_backend" {
   overwrite_on_create = true
 }
 
+resource "github_repository_file" "getting_started" {
+  for_each            = var.sites
+  repository          = github_repository.starter_repo[each.key].name
+  branch              = "main"
+  file                = "GETTING_STARTED.md"
+  content             = templatefile("templates/GETTING_STARTED.md.tftpl", { SITE = each.key, GITHUB_ORG = each.value.github_organization, GITHUB_URL = "git@github.com:${each.value.github_organization}" })
+  commit_message      = "Managed by Terraform"
+  commit_author       = "Terraform User"
+  commit_email        = "builder-admin@${each.key}"
+  overwrite_on_create = true
+}
+
+
 resource "github_release" "site_initial" {
   for_each   = var.sites
   repository = github_repository.starter_repo[each.key].name

@@ -13,7 +13,7 @@ terraform {
   }
 }
 
-# Configure the GitHub Provider
+# Configure the Global GitHub Provider - where the modules go
 provider "github" {
   token = var.github_token
   owner = var.github_organization
