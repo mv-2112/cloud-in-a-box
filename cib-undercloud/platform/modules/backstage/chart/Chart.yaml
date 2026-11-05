@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cib-backstage
+description: Backstage (image from mv-2112/Backstage-Testbed) with a CloudNativePG database
+type: application
+version: 0.1.1
+appVersion: "0.0.93"

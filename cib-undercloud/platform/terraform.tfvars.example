@@ -1,0 +1,61 @@
+# Copy to terraform.tfvars (git-ignored) and edit.
+
+# s3_endpoint: not set here. env.sh exports TF_VAR_s3_endpoint, and a value
+# in this file would override it (tfvars beat environment variables).
+github_owner = "blackcatengineering"
+
+# Platform runners (ARC), registered to the cib-tenants repo only.
+platform_runner = {
+  repository  = "cib-tenants"
+  max_runners = 3
+}
+
+# Backstage on the admin cluster. Remove (or set to null) to skip it.
+# Its name defaults to backstage.<cloud_name>.<dns_domain>, e.g.
+# backstage.mz640test.lab.home.arpa; the router's DNS maps it to the
+# ingress's fixed address (PLATFORM_INGRESS_IP). Set hostname to override.
+backstage = {}
+# dns_domain = "lab.home.arpa"
+
+# GitHub App credentials, two ways:
+#
+# 1. Automatic (recommended):
+#      ../tools/github-apps.py runners
+#      ../tools/github-apps.py backstage
+#    creates both apps (two clicks each on GitHub) and writes the two blocks
+#    below to github-apps.auto.tfvars.json here (git-ignored, read
+#    automatically). Keep each block in one place only: if both have it,
+#    the .auto.tfvars.json file wins (Terraform reads it after this one).
+#
+# 2. By hand, for apps created on GitHub yourself (permissions: see the
+#    GitHub Apps table in ../README.md). Top level, NOT inside
+#    platform_runner / backstage: Terraform silently drops unknown fields.
+#
+# platform_runner_github_app = {
+#   app_id          = "123456"          # app's General page: "App ID" (a number), not the Client ID (Iv23...)
+#   installation_id = "12345678"        # NOT shown on any GitHub page, only in a URL:
+#                                       #   github.com/organizations/<org>/settings/installations
+#                                       #   -> Configure next to the app -> the URL ends
+#                                       #   /settings/installations/<installation_id>.
+#                                       #   Not listed there? The app isn't installed yet:
+#                                       #   app page -> Install App -> only cib-tenants.
+#   private_key     = <<-EOT
+#     -----BEGIN RSA PRIVATE KEY-----
+#     ...
+#     -----END RSA PRIVATE KEY-----
+#   EOT
+# }
+#
+# backstage_github_app = {
+#   app_id        = "234567"
+#   client_id     = "Iv23..."
+#   client_secret = "..."
+#   private_key   = <<-EOT
+#     -----BEGIN RSA PRIVATE KEY-----
+#     ...
+#     -----END RSA PRIVATE KEY-----
+#   EOT
+# }
+#
+# Instead of a GitHub App the runners can use a PAT (admin on cib-tenants):
+# platform_runner_github_token = "github_pat_..."

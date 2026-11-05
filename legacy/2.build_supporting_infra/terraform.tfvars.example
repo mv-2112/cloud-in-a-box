@@ -1,8 +1,0 @@
-
-# Create a pat token with for jenkins and backstage usage. give it as much as you wish/need
-github_pat="ghp_abcdef...etc"
-
-# Create an Oauth app for Backstage
-auth_github_client_id=Ov532asd..etc
-auth_github_client_secret=4384ab465c45e547..etc
-

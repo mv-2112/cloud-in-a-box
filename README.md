@@ -1,29 +1,27 @@
 # cloud-in-a-box
-Quick and dirty cloud in a box, with supporting infrastructure
 
+Four repos, all in the **same GitHub organization** (not a personal account:
+tenant repos, GitHub Apps and Backstage's catalog all hang off the org).
+**Create and push all four first**; pushing deploys nothing. They're then
+*applied* in a different order, below.
 
-## Getting started
-This is intended to be easy, so the requirements are simple.
-- You need a Ubuntu install (desktop is ok).
-- You need a blank extra drive
-- You probably need 16GB or more
-- You will need an internet connection
-- You'll need lots of cpu cores
+| Repo | What | Push | Apply |
+|---|---|---|---|
+| `cib-terraform-modules` | shared Terraform modules, tagged `v1.1.1`; **public** | 1st (tag it) | never: the others use it |
+| `cib-tenant-template` | GitHub template every tenant repo is created from (mark it a template) | 2nd | never: tenant repos are created from it |
+| `cib-tenants` | tenant definitions + provisioning pipeline | 3rd (the platform runners and their GitHub App attach to it) | last, on the platform runners |
+| `cib-undercloud` | Sunbeam install, platform objects, admin cluster, platform runners, Backstage | 4th | from the Sunbeam host, before `cib-tenants` |
 
-This was developed on a HP z640 with 2x Xeon E5-2640v4 (40 cores total) with 80GB RAM, an NVMe boot disk, and 4x 480GB SSD's.
+First, point all four repos at your org:
 
-Install Ubuntu onto NVMe disk
+```bash
+./set-org.py <your-org> --dry-run   # preview
+./set-org.py <your-org>             # checks it's an org, then rewrites module sources + tfvars examples
+```
 
-During the install, SSD 1, 2,3, and 4 will be used for Ceph.
+It rewrites whatever org is there now (the `YOUR_ORG` placeholder the first
+time), so re-running with a different name is safe. Then follow
+`cib-terraform-modules/README.md` to create and push the first repo. After that:
 
-
-## Initial install
-
-Navigate to the root directory of the repo and reference the install script.
-
-- `./install.sh`
-- After it completes, `cat install.sh` to see the remaining steps.
-
-## Removal
-
-Navigate to the root directory of the repo and uninstall.sh
+- `MIGRATION.md`: the full bring-up sequence, and where everything from the old repo went
+- `SECURITY.md`: security review, fixes and what's left

@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backstage
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.tls.clusterIssuer }}
+spec:
+  ingressClassName: {{ .Values.ingressClassName }}
+  tls:
+    - hosts:
+        - {{ .Values.hostname }}
+      secretName: backstage-tls
+  rules:
+    - host: {{ .Values.hostname }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: backstage-service
+                port:
+                  name: backend

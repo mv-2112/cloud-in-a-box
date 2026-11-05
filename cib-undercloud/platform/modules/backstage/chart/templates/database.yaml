@@ -1,0 +1,22 @@
+# CloudNativePG creates the secret backstage-database-app (username/password)
+# and the service backstage-database-rw that the Deployment uses.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: backstage-database
+  namespace: {{ .Release.Namespace }}
+spec:
+  instances: {{ .Values.database.instances }}
+  storage:
+    size: {{ .Values.database.size }}
+    {{- with .Values.database.storageClass }}
+    storageClass: {{ . }}
+    {{- end }}
+  bootstrap:
+    initdb:
+      database: app
+      owner: app
+      # Backstage creates a database per plugin, so the app user needs
+      # CREATEDB (replaces the manual `ALTER USER app CREATEDB` step).
+      postInitSQL:
+        - ALTER USER app CREATEDB;

@@ -1,0 +1,58 @@
+# One file per tenant. File name is cosmetic; `domain` is the key.
+# Open a PR to add/change a tenant; merge to apply.
+
+domain: spanglywires.ddns.net
+owner: Matt
+description: spanglywires.ddns.net
+
+# Projects created inside the tenant's Keystone domain.
+# `builder` is the project the tenant pipeline deploys into.
+projects:
+  builder:
+    description: Builder project
+    quota:
+      cores: -1        # -1 = unlimited
+      ram: -1
+      instances: -1
+      key_pairs: -1
+      server_groups: -1
+      server_group_members: -1
+
+# People, each given one persona (a group with fixed roles, inherited across
+# all projects in this domain):
+#   admin     - manages users and roles in this tenant, and all resources
+#   developer - builds and changes resources (builder-admin is one of these)
+#   viewer    - read-only
+# Leave this block out to get these three generic users. First-login
+# passwords: `terraform output -json initial_passwords` (platform admin only);
+# users must change them. Set enabled: false to lock someone out.
+users:
+  tenant-admin:
+    persona: admin
+    description: Generic tenant administrator
+  developer:
+    persona: developer
+    description: Generic developer
+  viewer:
+    persona: viewer
+    description: Generic read-only user
+
+# Platform security groups (from cib-undercloud) to share into every project above.
+shared_security_groups:
+  - egress-all
+  - ssh
+  - web
+  - icmp
+
+# The tenant's own GitHub Actions runner: a small VM in the builder project,
+# registered only to the tenant repo below, running with the tenant's
+# credentials. Needs github.enabled. Set enabled: false to remove it.
+runner:
+  enabled: true
+  flavor: m1.small
+
+# Create a repo from cib-tenant-template and wire its pipeline secrets.
+github:
+  enabled: true
+  repository: spanglywires.ddns.net
+  visibility: private

@@ -1,0 +1,15 @@
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+terraform/backend.hcl
+admin_openrc
+vault_keys
+certs/
+terraform/terraform.tfvars
+platform/terraform.tfvars
+**/.terraform/
+bootstrap/manifest.yaml
+terraform/site.auto.tfvars.json
+platform/github-apps.auto.tfvars.json
+platform/github-apps.auto.tfvars.tmp
+platform/.github-app-*.pending.json

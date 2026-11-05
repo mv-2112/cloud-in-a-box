@@ -1,0 +1,25 @@
+# Rename to backend.tf AFTER the first apply, then (with env.sh sourced):
+#   terraform init -migrate-state -backend-config="endpoints={s3=\"$TF_VAR_s3_endpoint\"}"
+#
+# The first apply has to use local state because the bucket that will hold
+# this state is created by this very configuration (state_buckets.tf).
+#
+# Credentials and CA come from the environment env.sh sets up
+# (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY for the admin EC2 key,
+# AWS_CA_BUNDLE for Sunbeam's CA), so nothing secret is written to disk.
+# Only the endpoint is passed, because it differs per cloud.
+
+terraform {
+  backend "s3" {
+    bucket = "cib-undercloud-tfstate"
+    key    = "undercloud/terraform.tfstate"
+    region = "RegionOne"
+
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+    use_path_style              = true
+  }
+}

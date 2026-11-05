@@ -1,0 +1,10 @@
+{{- if .Values.tls.createSelfSignedIssuer }}
+# Self-signed, as in Backstage-Testbed. Point tls.clusterIssuer at a real
+# issuer (ACME, or a CA issuer backed by your lab CA) to replace it.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.tls.clusterIssuer }}
+spec:
+  selfSigned: {}
+{{- end }}

@@ -1,0 +1,82 @@
+#cloud-config
+# GitHub Actions self-hosted runner for cloud-in-a-box.
+# Rendered by the gh-runner-vm module. Progress: /var/log/cib-runner-setup.log
+
+package_update: true
+package_upgrade: true
+packages:
+  - curl
+  - git
+  - jq
+  - unzip
+  - ca-certificates
+
+users:
+  - default
+  - name: runner
+    gecos: GitHub Actions runner
+    shell: /bin/bash
+    lock_passwd: true
+    # No sudo: jobs only need to download Terraform and talk to APIs.
+
+write_files:
+%{ if ca_cert_pem != null ~}
+  - path: /usr/local/share/ca-certificates/sunbeam-ca.crt
+    permissions: "0644"
+    content: |
+      ${indent(6, trimspace(ca_cert_pem))}
+%{ endif ~}
+  - path: /usr/local/sbin/cib-runner-setup
+    permissions: "0700"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      exec > >(tee -a /var/log/cib-runner-setup.log /dev/console) 2>&1
+      echo "== cib runner setup $(date -Is)"
+
+      TOKEN='${registration_token}'
+      if [ -z "$TOKEN" ]; then
+        echo "No registration token was supplied; replace the instance with a fresh token."
+        exit 1
+      fi
+
+      update-ca-certificates
+
+      VERSION='${runner_version}'
+      TARBALL="actions-runner-linux-x64-$VERSION.tar.gz"
+      DIR=/opt/actions-runner
+      mkdir -p "$DIR"
+      cd "$DIR"
+
+      curl -fsSL -o "$TARBALL" "https://github.com/actions/runner/releases/download/v$VERSION/$TARBALL"
+
+      # Verify against the SHA-256 digest GitHub publishes for the release asset.
+      WANT=$(curl -fsSL "https://api.github.com/repos/actions/runner/releases/tags/v$VERSION" \
+        | jq -r --arg n "$TARBALL" '.assets[] | select(.name == $n) | .digest' | sed 's/^sha256://')
+      GOT=$(sha256sum "$TARBALL" | cut -d' ' -f1)
+      if [ -z "$WANT" ] || [ "$WANT" = "null" ]; then
+        echo "WARNING: no published digest found; continuing with sha256 $GOT"
+      elif [ "$WANT" != "$GOT" ]; then
+        echo "Checksum mismatch: want $WANT got $GOT"; exit 1
+      fi
+
+      tar xzf "$TARBALL" && rm -f "$TARBALL"
+      ./bin/installdependencies.sh
+      chown -R runner:runner "$DIR"
+
+      sudo -u runner ./config.sh --unattended \
+        --url '${github_url}' \
+        --token "$TOKEN" \
+        --name '${runner_name}' \
+        --labels '${runner_labels}' \
+        --work _work \
+        --replace
+
+      ./svc.sh install runner
+      ./svc.sh start
+      echo "== runner registered and started"
+
+runcmd:
+  - [/usr/local/sbin/cib-runner-setup]
+  # The token has been used; don't leave it lying around on disk.
+  - [sed, -i, "s/^TOKEN=.*/TOKEN=redacted/", /usr/local/sbin/cib-runner-setup]

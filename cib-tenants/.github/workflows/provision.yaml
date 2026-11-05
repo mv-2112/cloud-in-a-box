@@ -1,0 +1,96 @@
+# Tenant provisioning: PR => plan (posted to the job summary), merge => apply.
+#
+# Repo secrets (set once by the platform admin):
+#   OS_APPLICATION_CREDENTIAL_ID / OS_APPLICATION_CREDENTIAL_SECRET
+#       admin app credential:  openstack application credential create cib-tenants
+#       (if Keystone refuses to create EC2 credentials for other users when
+#       authenticated with a restricted app credential, recreate it with
+#       --unrestricted, and keep this repo's secrets tight accordingly)
+#   STATE_S3_ACCESS_KEY / STATE_S3_SECRET_KEY
+#       admin EC2 creds:       openstack ec2 credentials create
+#       Used for this repo's own state AND to create/own every tenant's state
+#       bucket. Anyone holding them can read all tenant state; treat as root.
+#   TENANTS_GH_TOKEN
+#       fine-grained PAT or GitHub App token with Administration, Secrets,
+#       Variables and Environments write on the org's repos
+# Repo variables:
+#   OS_AUTH_URL, S3_ENDPOINT, GITHUB_OWNER
+
+name: provision-tenants
+
+# Least privilege for GITHUB_TOKEN; jobs widen it only where needed.
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths: ["tenants/**", "terraform/**", "as-tenant/**"]
+  push:
+    branches: [main]
+    paths: ["tenants/**", "terraform/**", "as-tenant/**"]
+  workflow_dispatch:
+  # Weekly, so pipeline credentials rotate on time even without commits.
+  schedule:
+    - cron: "17 3 * * 1"
+
+concurrency:
+  group: provision-tenants
+  cancel-in-progress: false
+
+env:
+  OS_AUTH_TYPE: v3applicationcredential
+  OS_AUTH_URL: ${{ vars.OS_AUTH_URL }}
+  OS_APPLICATION_CREDENTIAL_ID: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
+  OS_APPLICATION_CREDENTIAL_SECRET: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
+  OS_IDENTITY_API_VERSION: "3"
+  AWS_ACCESS_KEY_ID: ${{ secrets.STATE_S3_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.STATE_S3_SECRET_KEY }}
+  GITHUB_TOKEN: ${{ secrets.TENANTS_GH_TOKEN }}
+  TF_VAR_github_owner: ${{ vars.GITHUB_OWNER }}
+  TF_VAR_s3_endpoint: ${{ vars.S3_ENDPOINT }}
+  S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+  AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+  TF_IN_AUTOMATION: "1"
+
+jobs:
+  terraform:
+    # Fork PRs never reach the self-hosted runner.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, cib]
+    environment: ${{ github.event_name == 'pull_request' && 'plan' || 'production' }}
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_wrapper: false
+
+      - run: terraform fmt -check -recursive
+      - name: init
+        run: terraform init -input=false -backend-config='endpoints={s3="${{ vars.S3_ENDPOINT }}"}'
+      - run: terraform validate
+
+      - name: plan
+        run: |
+          terraform plan -input=false -out=tfplan
+          {
+            echo '### Tenant plan'
+            echo '```'
+            terraform show -no-color tfplan | tail -n 200
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: apply
+        if: github.event_name != 'pull_request'
+        run: terraform apply -input=false tfplan
+
+      # Per tenant, logged in as that tenant: rotate the pipeline credential
+      # in its repo and manage its runner VM.
+      - name: as-tenant stage
+        working-directory: as-tenant
+        run: ./apply-all.sh ${{ github.event_name == 'pull_request' && 'plan' || 'apply' }}

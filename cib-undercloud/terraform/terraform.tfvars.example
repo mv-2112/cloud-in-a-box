@@ -1,0 +1,13 @@
+# Copy to terraform.tfvars and edit.
+
+# s3_endpoint: not set here. env.sh exports TF_VAR_s3_endpoint, and a value
+# in this file would override it (tfvars beat environment variables).
+
+# cloud_ca_cert_pem: not set here either; env.sh exports TF_VAR_cloud_ca_cert_pem
+# from Sunbeam's CA.
+
+# Platform cluster in the admin project (platform runner + Backstage live
+# here, deployed by ../platform). Set to null to skip.
+admin_cluster = {
+  node_count = 2
+}

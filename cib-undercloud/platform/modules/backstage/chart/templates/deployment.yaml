@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: backstage
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: backstage
+  template:
+    metadata:
+      labels:
+        app: backstage
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      # Wait for the database before starting. Backstage connects once at
+      # startup; if Postgres isn't ready yet (first install, or the database
+      # pod restarting) every plugin fails, and the process stays up serving
+      # liveness but never becomes ready. CloudNativePG's -rw Service only has
+      # an endpoint once the primary is ready, so a TCP connect is enough.
+      # Uses the Backstage image's own node, so no extra image to pull.
+      initContainers:
+        - name: wait-for-database
+          image: {{ .Values.image }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: POSTGRES_HOST
+              value: backstage-database-rw.{{ .Release.Namespace }}.svc.cluster.local
+          command:
+            - node
+            - -e
+            - |
+              const net = require('net');
+              const host = process.env.POSTGRES_HOST;
+              (function attempt() {
+                const s = net.connect(5432, host);
+                s.setTimeout(5000);
+                s.on('connect', () => { console.log(`${host}:5432 is reachable`); s.destroy(); process.exit(0); });
+                const retry = (why) => { console.log(`waiting for ${host}:5432 (${why})`); s.destroy(); setTimeout(attempt, 3000); };
+                s.on('timeout', () => retry('timeout'));
+                s.on('error', (e) => retry(e.code || e.message));
+              })();
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+      containers:
+        - name: backstage
+          image: {{ .Values.image }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - name: backend
+              containerPort: 7007
+          env:
+            # Override the baseUrls baked into the image's app-config.yaml.
+            - name: APP_CONFIG_app_baseUrl
+              value: https://{{ .Values.hostname }}
+            - name: APP_CONFIG_backend_baseUrl
+              value: https://{{ .Values.hostname }}
+            - name: APP_CONFIG_backend_cors_origin
+              value: https://{{ .Values.hostname }}
+            - name: POSTGRES_HOST
+              value: backstage-database-rw.{{ .Release.Namespace }}.svc.cluster.local
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: backstage-database-app
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backstage-database-app
+                  key: password
+            - name: TRUST_PROXY
+              value: "true"
+            {{- range $k := list "GITHUB_APP_ID" "GITHUB_APP_CLIENT_ID" "GITHUB_APP_CLIENT_SECRET" "GITHUB_APP_PRIVATE_KEY" }}
+            - name: {{ $k }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.githubSecretName }}
+                  key: {{ $k }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /.backstage/health/v1/readiness
+              port: backend
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /.backstage/health/v1/liveness
+              port: backend
+            initialDelaySeconds: 120
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

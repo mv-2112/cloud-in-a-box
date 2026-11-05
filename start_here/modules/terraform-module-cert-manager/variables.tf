@@ -1,9 +1,0 @@
-variable "k8s_cluster" {
-  type    = string
-  default = "builder-cluster-wxh7o"
-}
-
-variable "cert_manager_version" {
-  type    = string
-  default = "v1.19.2"
-}
